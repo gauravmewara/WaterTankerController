@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="15dp"
+    android:id="@+id/cl_tankeritem"
+    android:layout_marginBottom="5dp"
+    android:background="@color/Green1">
+
+    <ImageView
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:id="@+id/iv_tankeritem_drivername"
+        android:src="@drawable/driver_taker_details"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_drivername_title"
+        android:text="Driver's Name"
+        android:textSize="11dp"
+        android:layout_marginLeft="8dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@+id/iv_tankeritem_drivername"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_tankeritem_drivername"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_drivername"
+        android:text="James Smith"
+        android:textColor="@color/Black"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_drivername_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_tankeritem_drivername_title"
+        />
+
+
+    <ImageView
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:id="@+id/iv_tankeritem_drivermobile"
+        android:src="@drawable/mobile_number_tankers_details"
+        android:layout_marginLeft="5dp"
+        app:layout_constraintStart_toEndOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toTopOf="@id/iv_tankeritem_drivername"
+        app:layout_constraintEnd_toEndOf="@+id/iv_tankeritem_tanker"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_drivermobile_title"
+        android:text="Mobile Number"
+        android:textSize="11dp"
+        android:layout_marginLeft="8dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@+id/iv_tankeritem_drivermobile"
+        app:layout_constraintEnd_toStartOf="@+id/iv_tankeritem_tanker"
+        app:layout_constraintTop_toTopOf="@+id/tv_tankeritem_drivername_title"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_tankeritem_drivername_title"
+        />
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_drivermobile"
+        android:text="1234567890"
+        android:textColor="@color/Black"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_drivermobile_title"
+        app:layout_constraintEnd_toStartOf="@+id/iv_tankeritem_tanker"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toTopOf="@+id/tv_tankeritem_drivername"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_tankeritem_drivername" />
+
+
+
+    <ImageView
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:id="@+id/iv_tankeritem_contractorname"
+        android:src="@drawable/driver_taker_details"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="@+id/iv_tankeritem_drivername"
+        app:layout_constraintEnd_toEndOf="@+id/iv_tankeritem_drivername"
+        app:layout_constraintTop_toBottomOf="@+id/tv_tankeritem_drivername"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_contractorname_title"
+        android:text="Contractor's Name"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_drivername_title"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_tankeritem_contractorname"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_contractorname"
+        android:text="James Smith"
+        android:textColor="@color/Black"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_contractorname_title"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@+id/tv_tankeritem_contractorname_title"
+        />
+
+
+    <ImageView
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:id="@+id/iv_tankeritem_tankermodel"
+        android:src="@drawable/tanker_number_tanker_details"
+        app:layout_constraintStart_toStartOf="@+id/iv_tankeritem_drivermobile"
+        app:layout_constraintTop_toTopOf="@+id/iv_tankeritem_contractorname"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_tankeritem_contractorname"
+        app:layout_constraintEnd_toEndOf="@+id/iv_tankeritem_drivermobile"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_tankermodel_title"
+        android:text="Tanker Model No."
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_drivermobile_title"
+        app:layout_constraintEnd_toStartOf="@+id/iv_tankeritem_tanker"
+        app:layout_constraintTop_toTopOf="@+id/tv_tankeritem_contractorname_title"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_tankeritem_contractorname_title"
+        />
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_tankermodel"
+        android:text="RJ12CA0909"
+        android:textColor="@color/Black"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_drivermobile_title"
+        app:layout_constraintEnd_toStartOf="@+id/iv_tankeritem_tanker"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toTopOf="@+id/tv_tankeritem_contractorname"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_tankeritem_contractorname" />
+
+
+    <ImageView
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:id="@+id/iv_tankeritem_tankercapacity"
+        android:src="@drawable/tankers_capasity_tanker_details"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="@+id/iv_tankeritem_drivername"
+        app:layout_constraintEnd_toEndOf="@+id/iv_tankeritem_drivername"
+        app:layout_constraintTop_toBottomOf="@+id/tv_tankeritem_contractorname"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_tankercapacity_title"
+        android:text="Tanker Capacity"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_drivername_title"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_tankeritem_tankercapacity"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_tankeritem_tankercapacity"
+        android:text="500 LTR"
+        android:textColor="@color/Black"
+        android:textSize="11dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@+id/tv_tankeritem_contractorname_title"
+        app:layout_constraintEnd_toStartOf="@+id/tankeritem_guideline1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@+id/tv_tankeritem_tankercapacity_title"
+        />
+
+    <ImageView
+        android:layout_width="75dp"
+        android:layout_height="70dp"
+        android:id="@+id/iv_tankeritem_tanker"
+        android:layout_marginRight="10dp"
+        android:src="@color/Green2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toTopOf="@+id/tv_tankeritem_drivername_title"/>
+
+    <ImageView
+        android:id="@+id/iv_tankeritem_tankeronline"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:src="@drawable/tanker_offline_icon"
+        app:layout_constraintEnd_toEndOf="@+id/iv_tankeritem_tanker"
+        app:layout_constraintStart_toEndOf="@+id/iv_tankeritem_tanker"
+        app:layout_constraintTop_toTopOf="@id/iv_tankeritem_tanker"
+        app:layout_constraintBottom_toTopOf="@+id/iv_tankeritem_tanker"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/tankeritem_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="130dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

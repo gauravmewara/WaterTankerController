@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/wtc_toolbar"
+    android:layout_alignParentTop="true"
+    android:layout_height="40dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="15dp">
+        <RelativeLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/rl_toolbar_menu">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:id="@+id/iv_toolbar_menu"
+                android:layout_centerVertical="true"
+                android:foregroundGravity="left"
+                android:src="@drawable/menu_booking_status"/>
+        </RelativeLayout>
+        <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/tv_toolbar_heading"
+            android:layout_centerInParent="true"
+            android:textColor="@color/Black"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_toLeftOf="@+id/iv_toolabar_notification"
+            android:layout_toRightOf="@+id/rl_toolbar_menu"
+            android:text="@string/booking_status_page_title"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/iv_toolabar_notification"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/notification_booking_status"/>
+    </RelativeLayout>
+</androidx.appcompat.widget.Toolbar>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.TankerDetails">
+    <include
+        layout="@layout/wtc_toolbar2"
+        android:id="@+id/include_tankerdetail"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_background_main"
+        android:layout_below="@+id/include_tankerdetail">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:id="@+id/rv_tankerdetails"
+            android:visibility="gone"
+            android:layout_marginTop="15dp"/>
+        <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_tankerdetail_nodata"
+            android:text="No Tankers Available"
+            android:textColor="@color/Black"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:layout_marginTop="35dp"
+            android:visibility="gone"/>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pg_tankerdetails"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+</RelativeLayout>

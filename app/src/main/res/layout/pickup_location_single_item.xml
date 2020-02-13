@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/rl_pickup_item_location"
+    android:layout_marginBottom="5dp"
+    android:paddingBottom="5dp">
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_pickupitem_location"
+        android:textSize="12dp"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/Black"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/pickup_item_divider1"
+        android:background="@color/DarkGray"
+        android:layout_below="@+id/tv_pickupitem_location"/>
+</RelativeLayout>

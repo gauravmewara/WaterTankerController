@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.PickUpLocations">
+    <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_pickuplocation_pagetitle"
+        android:text="Pickup Location"
+        android:textSize="14dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/Black"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/rl_pickuplocation_search"
+        android:layout_below="@+id/tv_pickuplocation_pagetitle"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:padding="5dp"
+        android:background="@drawable/edittextbackground">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_pickuploaction_search"
+            android:textSize="12dp"
+            android:layout_centerVertical="true"
+            android:hint="Type here"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rl_pickuplocation_list"
+        android:layout_below="@+id/rl_pickuplocation_search"
+        android:layout_alignLeft="@+id/rl_pickuplocation_search"
+        android:layout_alignRight="@id/rl_pickuplocation_search"
+        android:background="@drawable/recycleview_background"
+        android:layout_marginTop="10dp"
+        android:padding="7dp"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_pickuplocation_nodata"
+            android:text="No Locations Found"
+            android:textColor="@color/Black"
+            android:textSize="16dp"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            android:gravity="center"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/rv_pickuplocation_list"
+            android:visibility="gone"/>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pg_pickuplocation_list"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+</RelativeLayout>

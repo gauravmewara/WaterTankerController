@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <include
+        layout="@layout/wtc_toolbar"
+        android:id="@+id/include_bookingstatus_toolbar"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rl_bookingstatus_content"
+        android:background="@drawable/gradient_background_main"
+        android:layout_below="@+id/include_bookingstatus_toolbar">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.3">
+
+            <RelativeLayout
+                android:id="@+id/rl_bookingstatus_completed"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/booking_status_icon_background"
+                app:layout_constraintBottom_toTopOf="@+id/rl_bookingstatus_ongoing"
+                app:layout_constraintEnd_toStartOf="@+id/rl_bookingstatus_pending"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/completed_booking_status" />
+
+                <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                    android:id="@+id/tv_bookingstatus_completed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/booking_completed"
+                    android:textColor="@color/White"
+                    android:textSize="16dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_bookingstatus_pending"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/booking_status_icon_background"
+                app:layout_constraintBottom_toBottomOf="@+id/rl_bookingstatus_completed"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/rl_bookingstatus_completed"
+                app:layout_constraintTop_toTopOf="@+id/rl_bookingstatus_completed">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/pending_booking_stus" />
+
+                <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                    android:id="@+id/tv_bookingstatus_pending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/booking_pending"
+                    android:textColor="@color/White"
+                    android:textSize="16dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_bookingstatus_ongoing"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/booking_status_icon_background"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/rl_bookingstatus_completed"
+                app:layout_constraintStart_toStartOf="@+id/rl_bookingstatus_completed"
+                app:layout_constraintTop_toBottomOf="@+id/rl_bookingstatus_completed">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ongoing_booking_status" />
+
+                <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                    android:id="@+id/tv_bookingstatus_ongoing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/booking_ongoing"
+                    android:textColor="@color/White"
+                    android:textSize="16dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_bookingstatus_aborted"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/booking_status_icon_background"
+                app:layout_constraintBottom_toBottomOf="@+id/rl_bookingstatus_ongoing"
+                app:layout_constraintEnd_toEndOf="@+id/rl_bookingstatus_pending"
+                app:layout_constraintStart_toStartOf="@+id/rl_bookingstatus_pending"
+                app:layout_constraintTop_toTopOf="@+id/rl_bookingstatus_ongoing">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/aborted_bookign_status" />
+
+                <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                    android:id="@+id/tv_bookingstatus_aborted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/booking_aborted"
+                    android:textColor="@color/White"
+                    android:textSize="16dp" />
+            </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

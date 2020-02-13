@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="5dp"
+    android:id="@+id/rl_notificationitem_layout">
+    <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_notificationitem_heading"
+        android:layout_marginTop="3dp"
+        android:text="The Standard Lorem Ipsum passage, used since 1500s"
+        android:textColor="@color/Black"
+        android:maxLines="1"
+        android:textSize="13dp"/>
+    <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_notificationitem_data"
+        android:layout_below="@+id/tv_notificationitem_heading"
+        android:layout_marginTop="3dp"
+        android:text="loremdfhsjfsfskjvsvnjdnvsdjkfjsklfjs"
+        android:textSize="11dp"
+        android:textColor="@color/Black"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/notificationitem_divider"
+        android:background="@color/DarkGray"
+        android:layout_below="@+id/tv_notificationitem_data"
+        android:layout_marginTop="8dp"/>
+</RelativeLayout>

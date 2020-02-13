@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">WaterTankerController</string>
+    <string name="sign_in_btn_text">SIGN IN</string>
+    <string name="login_username">User Name</string>
+    <string name="login_password">Password</string>
+    <string name="nav_menu_bookingstatus">Booking Status</string>
+    <string name="nav_menu_bookingform">Booking Form</string>
+    <string name="nav_menu_tankerdetails">Tanker Details</string>
+    <string name="nav_menu_logout">Log Out</string>
+    <string name="booking_completed">Completed</string>
+    <string name="booking_pending">Pending</string>
+    <string name="booking_ongoing">Ongoing</string>
+    <string name="booking_aborted">Aborted</string>
+    <string name="booking_status_page_title">Booking Status</string>
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
+    <string name="no_booking">No Bookings Found</string>
+    <string name="abort_message">Remove from the list ?</string>
+    <string name="abort_warning">Are you sure you want to permanently remove this ?</string>
+    <string name="delete_text">Delete</string>
+    <string name="cancel_text">Cancel</string>
 </resources>

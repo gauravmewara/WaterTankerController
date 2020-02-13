@@ -8,8 +8,21 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        android:theme="@style/AppThemeNoBar">
+        <activity android:name=".Activity.DropActivity"></activity>
+        <activity android:name=".Activity.PickUpLocations" />
+        <activity android:name=".Activity.PickupActivity" />
+        <activity android:name=".Activity.NotificationActivity" />
+        <activity android:name=".Activity.BookingForm" />
+        <activity android:name=".Activity.TankerDetails" />
+        <activity android:name=".Activity.BookingDetails" />
+        <activity android:name=".Activity.AbortedActivity" />
+        <activity android:name=".Activity.OngoingActivity" />
+        <activity android:name=".Activity.PendingActivity" />
+        <activity android:name=".Activity.CompletedActivity" />
+        <activity android:name=".Activity.BookingStatus" />
+        <activity android:name=".Activity.LoginActivity" />
+        <activity android:name=".Activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
