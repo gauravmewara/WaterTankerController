@@ -14,14 +14,25 @@ import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.example.watertankercontroller.R;
+import com.example.watertankercontroller.Utils.FetchDataListener;
+import com.example.watertankercontroller.Utils.GETAPIRequest;
+import com.example.watertankercontroller.Utils.HeadersUtil;
+import com.example.watertankercontroller.Utils.SessionManagement;
+import com.example.watertankercontroller.Utils.URLs;
+import com.google.firebase.auth.FirebaseAuth;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class BookingStatus extends AppCompatActivity implements View.OnClickListener {
     ImageView toolbar_notification;
@@ -94,6 +105,8 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
                 startActivity(intent);
                 break;
             case R.id.rl_nav_logout:
+                logout.setClickable(false);
+                //logoutApiCalling();
                 intent = new Intent(BookingStatus.this,LoginActivity.class);
                 startActivity(intent);
                 finish();
@@ -124,4 +137,51 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
     public void onBackPressed() {
         super.onBackPressed();
     }
+
+
+    public void logoutApiCalling(){
+        JSONObject jsonBodyObj = new JSONObject();
+        try {
+            GETAPIRequest getapiRequest = new GETAPIRequest();
+            String url = URLs.BASE_URL + URLs.SIGN_OUT_URL;
+            Log.i("url", String.valueOf(url));
+            Log.i("Request", String.valueOf(getapiRequest));
+            String token = SessionManagement.getUserToken(this);
+            HeadersUtil headparam = new HeadersUtil(token);
+            getapiRequest.request(BookingStatus.this,logoutListener,url,headparam,jsonBodyObj);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    FetchDataListener logoutListener = new FetchDataListener() {
+        @Override
+        public void onFetchComplete(JSONObject data) {
+            try {
+                if (data != null) {
+                    if (data.getInt("error") == 0) {
+                        FirebaseAuth.getInstance().signOut();
+                        SessionManagement.logout(logoutListener, BookingStatus.this);
+                        Intent i = new Intent(BookingStatus.this, LoginActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(i);
+                        Toast.makeText(BookingStatus.this, "You are now logout", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onFetchFailure(String msg) {
+            logout.setClickable(true);
+        }
+
+        @Override
+        public void onFetchStart() {
+
+        }
+    };
 }

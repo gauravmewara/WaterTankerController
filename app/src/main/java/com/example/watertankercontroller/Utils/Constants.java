@@ -19,4 +19,7 @@ public class Constants {
     public static final int BOOKINGFORM_ACTIVITY_DROP_ACTIVITY_REQUEST_CODE=1013;
 
     public static final String PICKUP_LOCATION_INTENT_DATA_TITLE="pickuplocations";
+
+
+    public static final String SHARED_PREF_LOGIN_TAG="login_pref";
 }
