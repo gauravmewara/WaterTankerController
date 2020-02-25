@@ -80,4 +80,11 @@ public class PickupPlaceModal implements Parcelable {
             return new PickupPlaceModal[size];
         }
     };
+
+    public boolean isLocationSame(PickupPlaceModal place2){
+        if(this.latitude.equals(place2.getLatitude())&& this.longitude.equals(place2.getLongitude())){
+            return true;
+        }
+        return false;
+    }
 }

@@ -14,12 +14,12 @@
             android:layout_height="40dp"
             android:id="@+id/rl_toolbar2_menu">
             <ImageView
-                android:layout_width="15dp"
-                android:layout_height="15dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:id="@+id/iv_toolbar2_menu"
                 android:foregroundGravity="left"
                 android:layout_centerVertical="true"
-                android:src="@drawable/back_button"/>
+                android:src="@drawable/back_cbs"/>
         </RelativeLayout>
         <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
             android:layout_width="wrap_content"
@@ -33,12 +33,12 @@
             android:layout_toRightOf="@+id/rl_toolbar2_menu"
             android:text=""/>
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:id="@+id/iv_toolabar2_notification"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:scaleType="fitXY"
-            android:src="@drawable/notification_booking_status"/>
+            android:src="@drawable/notifications"/>
     </RelativeLayout>
 </androidx.appcompat.widget.Toolbar>

@@ -27,9 +27,11 @@ import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.FetchDataListener;
 import com.example.watertankercontroller.Utils.GETAPIRequest;
 import com.example.watertankercontroller.Utils.HeadersUtil;
+import com.example.watertankercontroller.Utils.POSTAPIRequest;
 import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.URLs;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,8 +39,8 @@ import org.json.JSONObject;
 public class BookingStatus extends AppCompatActivity implements View.OnClickListener {
     ImageView toolbar_notification;
     ActionBarDrawerToggle actionBarDrawerToggle;
-    RelativeLayout bookingstatus,bookingform,tankerdetail,logout,completedbooking,pendingbooking,ongoingbooking,abortedbooking,toolbar_toggle;
-    TextView name,mail;
+    RelativeLayout bookingform,tankerdetail,logout,completedbooking,pendingbooking,ongoingbooking,abortedbooking,toolbar_toggle;
+    TextView name,location;
     DrawerLayout navdrawer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +51,7 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
         toolbar_notification = (ImageView)findViewById(R.id.iv_toolabar_notification);
         toolbar_notification.setOnClickListener(this);
         name = (TextView)findViewById(R.id.tv_nav_name);
-        mail = (TextView)findViewById(R.id.tv_nav_username);
-        bookingstatus = (RelativeLayout)findViewById(R.id.rl_nav_bookingstatus);
-        bookingstatus.setOnClickListener(this);
+        location = (TextView)findViewById(R.id.tv_nav_username);
         bookingform = (RelativeLayout)findViewById(R.id.rl_nav_bookingform);
         bookingform.setOnClickListener(this);
         tankerdetail = (RelativeLayout)findViewById(R.id.rl_nav_tankerdetails);
@@ -83,6 +83,8 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
                 drawerMenu(view);
             }
         });
+        name.setText(SessionManagement.getName(BookingStatus.this));
+        location.setText(SessionManagement.getLocation(BookingStatus.this));
     }
 
     public void drawerMenu (View view ){
@@ -94,8 +96,6 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
         Intent intent;
         navdrawer.closeDrawers();
         switch(view.getId()){
-            case R.id.rl_nav_bookingstatus:
-                break;
             case R.id.rl_nav_bookingform:
                 intent = new Intent(BookingStatus.this,BookingForm.class);
                 startActivity(intent);
@@ -106,10 +106,10 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.rl_nav_logout:
                 logout.setClickable(false);
-                //logoutApiCalling();
-                intent = new Intent(BookingStatus.this,LoginActivity.class);
+                logoutApiCalling();
+                /*intent = new Intent(BookingStatus.this,LoginActivity.class);
                 startActivity(intent);
-                finish();
+                finish();*/
                 break;
             case R.id.rl_bookingstatus_completed:
                 intent = new Intent(BookingStatus.this,CompletedActivity.class);
@@ -140,15 +140,16 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
 
 
     public void logoutApiCalling(){
-        JSONObject jsonBodyObj = new JSONObject();
         try {
-            GETAPIRequest getapiRequest = new GETAPIRequest();
+            POSTAPIRequest getapiRequest = new POSTAPIRequest();
             String url = URLs.BASE_URL + URLs.SIGN_OUT_URL;
             Log.i("url", String.valueOf(url));
             Log.i("Request", String.valueOf(getapiRequest));
+            //String token = FirebaseInstanceId.getInstance().getToken();
             String token = SessionManagement.getUserToken(this);
+            Log.i("Token:",token);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(BookingStatus.this,logoutListener,url,headparam,jsonBodyObj);
+            getapiRequest.request(BookingStatus.this,logoutListener,url,headparam);
         } catch (Exception e) {
             e.printStackTrace();
         }

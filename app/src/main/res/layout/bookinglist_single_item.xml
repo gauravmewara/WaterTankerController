@@ -10,7 +10,7 @@
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:id="@+id/iv_bookingitem_bookingid"
-        android:src="@drawable/booking_id_booking_status"
+        android:src="@drawable/bookingid_cbs"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="5dp"
@@ -44,7 +44,7 @@
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:id="@+id/iv_bookingitem_distance"
-        android:src="@drawable/distance_booking_status"
+        android:src="@drawable/distance_cbs"
         android:layout_marginRight="10dp"
         app:layout_constraintEnd_toStartOf="@+id/tv_bookingitem_distance_title"
         app:layout_constraintTop_toTopOf="@+id/iv_bookingitem_bookingid"
@@ -84,7 +84,7 @@
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:id="@+id/iv_bookingitem_from"
-        android:src="@drawable/from_booking_status"
+        android:src="@drawable/from_cbs"
         android:layout_marginTop="25dp"
         app:layout_constraintStart_toStartOf="@+id/tv_bookingitem_bookingid"
         app:layout_constraintTop_toBottomOf="@+id/tv_bookingitem_bookingid"/>
@@ -144,7 +144,7 @@
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:id="@+id/iv_bookingitem_to"
-        android:src="@drawable/to_booking_status"
+        android:src="@drawable/to_cbs"
         android:layout_marginTop="2dp"
         app:layout_constraintStart_toStartOf="@+id/iv_bookingitem_from"
         app:layout_constraintEnd_toEndOf="@+id/iv_bookingitem_from"
@@ -222,7 +222,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/map_ongoingbooking"/>
+                    android:src="@drawable/distance_cbs"/>
             </RelativeLayout>
         </RelativeLayout>
         <View
@@ -255,7 +255,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/view_booking_status"/>
+                    android:src="@drawable/click_cbs"/>
             </RelativeLayout>
         </RelativeLayout>
     </LinearLayout>
@@ -288,7 +288,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_centerInParent="true"
-                android:src="@drawable/view_booking_status"/>
+                android:src="@drawable/click_cbs"/>
         </RelativeLayout>
     </RelativeLayout>
 

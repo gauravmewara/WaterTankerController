@@ -99,7 +99,7 @@
                         android:layout_height="15dp"
                         android:layout_centerInParent="true"
                         android:id="@+id/iv_login_pwd"
-                        android:src="@drawable/password_login"/>
+                        android:src="@drawable/passwoord_login"/>
                 </RelativeLayout>
 
                 <TextView

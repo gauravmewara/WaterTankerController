@@ -38,43 +38,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/rl_nav_bookingstatus"
+        android:id="@+id/rl_nav_bookingform"
         android:layout_marginLeft="20dp"
         android:layout_below="@+id/nav_underline1">
         <ImageView
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:id="@+id/iv_nav_bookingstatus"
-            android:src="@drawable/booking_status_menubar"
-            android:layout_alignBottom="@+id/tv_nav_bookingstatus"/>
-        <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_nav_bookingstatus"
-            android:layout_toRightOf="@+id/iv_nav_bookingstatus"
-            android:layout_marginLeft="10dp"
-            android:text="@string/nav_menu_bookingstatus"
-            android:layout_centerVertical="true"
-            android:textColor="@color/Black"
-            android:textSize="16dp"/>
-    </RelativeLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:id="@+id/nav_underline2"
-        android:background="@color/DarkGray"
-        android:layout_below="@+id/rl_nav_bookingstatus"/>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/rl_nav_bookingform"
-        android:layout_marginLeft="20dp"
-        android:layout_below="@+id/nav_underline2">
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
             android:id="@+id/iv_nav_bookingform"
-            android:src="@drawable/booking_form_menu_bar"
+            android:src="@drawable/bookingform_menu"
             android:layout_alignBottom="@+id/tv_nav_bookingform"/>
         <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
             android:layout_width="wrap_content"
@@ -103,7 +74,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:id="@+id/iv_nav_tankerdetails"
-            android:src="@drawable/tanker_details_menu_bar"
+            android:src="@drawable/tanker_deatials_menu"
             android:layout_alignBottom="@+id/tv_nav_tankerdetails"/>
         <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
             android:layout_width="wrap_content"
@@ -132,7 +103,7 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:id="@+id/iv_nav_logout"
-            android:src="@drawable/booking_status_menubar"
+            android:src="@drawable/logout_menu"
             android:layout_alignBottom="@+id/tv_nav_logout"/>
         <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
             android:layout_width="wrap_content"

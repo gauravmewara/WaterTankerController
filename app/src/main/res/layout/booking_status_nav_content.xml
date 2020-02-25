@@ -35,7 +35,7 @@
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/completed_booking_status" />
+                    android:src="@drawable/completed_bookingstatus" />
 
                 <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
                     android:id="@+id/tv_bookingstatus_completed"
@@ -63,7 +63,7 @@
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/pending_booking_stus" />
+                    android:src="@drawable/pending_bookingstatus" />
 
                 <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
                     android:id="@+id/tv_bookingstatus_pending"
@@ -91,7 +91,7 @@
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/ongoing_booking_status" />
+                    android:src="@drawable/ongoing_bookingsttus" />
 
                 <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
                     android:id="@+id/tv_bookingstatus_ongoing"
@@ -119,7 +119,7 @@
                     android:layout_width="35dp"
                     android:layout_height="35dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/aborted_bookign_status" />
+                    android:src="@drawable/aborted_bookingstatus" />
 
                 <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
                     android:id="@+id/tv_bookingstatus_aborted"

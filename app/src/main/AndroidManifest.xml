@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.watertankercontroller">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,11 +13,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppThemeNoBar">
-        <activity android:name=".Activity.DropActivity"></activity>
-        <activity android:name=".Activity.PickUpLocations" />
-        <activity android:name=".Activity.PickupActivity" />
+        <activity android:name=".Activity.OngoingMapActivity"></activity>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity android:name=".Activity.DropActivity" />
+        <activity
+            android:name=".Activity.PickUpLocations"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Activity.PickupActivity"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Activity.NotificationActivity" />
-        <activity android:name=".Activity.BookingForm" />
+        <activity
+            android:name=".Activity.BookingForm"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Activity.TankerDetails" />
         <activity android:name=".Activity.BookingDetails" />
         <activity android:name=".Activity.AbortedActivity" />
@@ -21,8 +40,9 @@
         <activity android:name=".Activity.PendingActivity" />
         <activity android:name=".Activity.CompletedActivity" />
         <activity android:name=".Activity.BookingStatus" />
-        <activity android:name=".Activity.LoginActivity"
-            android:windowSoftInputMode="stateHidden"/>
+        <activity
+            android:name=".Activity.LoginActivity"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

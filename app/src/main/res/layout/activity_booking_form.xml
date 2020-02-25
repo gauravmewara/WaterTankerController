@@ -23,7 +23,7 @@
                 android:id="@+id/iv_bookingform_pickup"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="38dp"
-                android:src="@drawable/pickup_point_create_booking"
+                android:src="@drawable/pickuppoint_create"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
             <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
@@ -79,11 +79,11 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_bookingform_pickup_location1"
                     app:layout_constraintBottom_toBottomOf="parent"/>
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
                     android:id="@+id/iv_bookingform_pickupmap"
                     android:layout_marginEnd="10dp"
-                    android:src="@drawable/map_create_booking"
+                    android:src="@drawable/map_create"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -96,7 +96,7 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:id="@+id/iv_bookingform_drop"
-                android:src="@drawable/drop_point_createbooking"
+                android:src="@drawable/droppoint_create"
                 android:layout_marginTop="10dp"
                 app:layout_constraintStart_toStartOf="@+id/iv_bookingform_pickup"
                 app:layout_constraintEnd_toEndOf="@+id/iv_bookingform_pickup"
@@ -151,11 +151,11 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_bookingform_drop_location1"
                     app:layout_constraintBottom_toBottomOf="parent"/>
                 <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
                     android:id="@+id/iv_bookingform_dropmap"
                     android:layout_marginEnd="10dp"
-                    android:src="@drawable/map_create_booking"
+                    android:src="@drawable/map_create"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -166,7 +166,7 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:id="@+id/iv_bookingform_mobile"
-                android:src="@drawable/contact_createbooking"
+                android:src="@drawable/number_tankerdetails"
                 android:layout_marginTop="10dp"
                 app:layout_constraintStart_toStartOf="@+id/iv_bookingform_pickup"
                 app:layout_constraintEnd_toEndOf="@+id/iv_bookingform_pickup"
@@ -234,7 +234,7 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:id="@+id/iv_bookingform_message"
-                android:src="@drawable/mgs_create_booking"
+                android:src="@drawable/mgs_create"
                 android:layout_marginTop="10dp"
                 app:layout_constraintStart_toStartOf="@+id/iv_bookingform_pickup"
                 app:layout_constraintEnd_toEndOf="@+id/iv_bookingform_pickup"
@@ -285,7 +285,7 @@
             <ImageView
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/view_booking_status"
+                android:src="@drawable/click_cbs"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
     </RelativeLayout>

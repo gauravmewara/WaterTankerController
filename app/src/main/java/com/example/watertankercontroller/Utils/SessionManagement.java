@@ -12,6 +12,7 @@ public class SessionManagement {
     private static final String USER_TOKEN = "token";
     private static final String LANGUAGE= "language";
     private static final String NAME = "name";
+    private static final String LOCATION = "location";
 
 
     public static boolean checkSignIn(Context con){
@@ -22,7 +23,7 @@ public class SessionManagement {
         }
     }
 
-    public static void createLoginSession(Context con,Boolean islogin, String user_id, String phcode,String phoneno,String username,String token,String language){
+    public static void createLoginSession(Context con,Boolean islogin, String user_id, String phcode,String phoneno,String username,String token,String language,String location){
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,IS_LOGGEDIN,islogin);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,USER_ID,user_id);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,PHONE_CODE,phcode);
@@ -30,6 +31,7 @@ public class SessionManagement {
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,NAME,username);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,USER_TOKEN,token);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,LANGUAGE,language);
+        SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,LOCATION,location);
     }
 
     public static void logout(FetchDataListener fetchDataListener, Context con){
@@ -69,7 +71,7 @@ public class SessionManagement {
     public static String getPhoneNo(Context con){
         return SharedPrefUtil.getStringPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,PHONE_NO);
     }
-
-
-
+    public static String getLocation(Context con){
+        return SharedPrefUtil.getStringPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,LOCATION);
+    }
 }

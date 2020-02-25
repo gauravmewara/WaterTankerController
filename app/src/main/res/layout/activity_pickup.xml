@@ -19,8 +19,8 @@
             android:layout_width="10dp"
             android:layout_height="10dp"
             android:id="@+id/iv_pickup_pickuppoint"
-            android:src="@drawable/pick_up_map"
-            android:layout_marginTop="35dp"
+            android:src="@drawable/from_cbs"
+            android:layout_marginTop="15dp"
             android:layout_marginLeft="25dp" />
         <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
             android:layout_width="match_parent"
@@ -59,23 +59,97 @@
             android:layout_below="@+id/tv_pickup_pickupaddress"
             android:layout_marginLeft="18dp"
             android:layout_marginRight="18dp"
-            android:layout_marginTop="4dp"
-            />
+            android:layout_marginTop="4dp" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/rl_pickupactivity_drop_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_pickup_view"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/gradient_background_main">
+        <ImageView
+            android:id="@+id/iv_pickupactivity_droppoint"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/droppoint_create" />
         <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+            android:id="@+id/tv_pickupactivity_drop_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_pickup_droppointmsg"
-            android:layout_below="@+id/pickup_underline1"
-            android:text="Getting Drop Point....."
+            android:layout_alignBottom="@+id/iv_pickupactivity_droppoint"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="25dp"
+            android:layout_toRightOf="@+id/iv_pickupactivity_droppoint"
+            android:text="Drop Point"
+            android:textSize="12dp" />
+        <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+            android:id="@+id/tv_pickupactivity_droplocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_pickupactivity_drop_title"
+            android:layout_alignLeft="@+id/tv_pickupactivity_drop_title"
+            android:layout_alignRight="@+id/tv_pickupactivity_drop_title"
+            android:text="Click Here"
             android:textColor="@color/Black"
-            android:textSize="14dp"
-            android:layout_alignLeft="@+id/iv_pickup_pickuppoint"/>
+            android:textSize="11dp" />
+        <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+            android:id="@+id/tv_pickupactivity_dropaddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_pickupactivity_droplocation"
+            android:layout_alignLeft="@+id/tv_pickupactivity_drop_title"
+            android:layout_alignRight="@+id/tv_pickupactivity_drop_title"
+            android:text=""
+            android:textSize="11dp" />
     </RelativeLayout>
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/fl_pickup_fragment"
-        android:layout_marginTop="3dp"
-        android:layout_below="@+id/rl_pickup_view"
-        />
+        android:layout_below="@+id/rl_pickupactivity_drop_view"
+        android:layout_above="@+id/rl_pickupacitvity_confirm">
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fg_pickup_map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_marginTop="3dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_pickupactivity_drop_pin"
+            android:visibility="gone"
+            android:src="@drawable/droppoint_create"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/rl_pickupacitvity_confirm"
+        android:background="@color/Green2"
+        android:layout_alignParentBottom="true">
+        <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="CONFIRM"
+            android:layout_toLeftOf="@+id/rl_pickupacitvity_confirm_icon"
+            android:textColor="@color/White"
+            android:textSize="13dp"
+            android:gravity="center"/>
+        <RelativeLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/rl_pickupacitvity_confirm_icon"
+            android:layout_alignParentRight="true"
+            android:background="@color/Green3">
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/click_cbs"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+    </RelativeLayout>
 </RelativeLayout>

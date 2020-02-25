@@ -38,11 +38,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Intent intent;
         switch (view.getId()){
             case R.id.cl_login_loginbtn:
-                //loginApiCall();
                 signin.setClickable(false);
-                Intent i = new Intent(LoginActivity.this, BookingStatus.class);
+                loginApiCall();
+                /*Intent i = new Intent(LoginActivity.this, BookingStatus.class);
                 startActivity(i);
-                finish();
+                finish();*/
                 break;
         }
     }
@@ -83,8 +83,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     userdetail.getString("phone_country_code"),
                                     userdetail.getString("phone"),
                                     userdetail.getString("name"),
-                                    data.getString("token"),
-                                    data.getJSONObject("settings").getString("language"));
+                                    userdetail.getString("token"),
+                                    userdetail.getJSONObject("settings").getString("language"),
+                                    userdetail.getString("location"));
                             Intent i = new Intent(LoginActivity.this, BookingStatus.class);
                             startActivity(i);
                             finish();
@@ -113,7 +114,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onFetchStart() {
-
             //RequestQueueService.showProgressDialog(Login.this);
         }
     };
