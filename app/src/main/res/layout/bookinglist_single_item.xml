@@ -6,6 +6,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginBottom="5dp"
     android:background="@drawable/booking_item_background">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cl_bookingitem_itemview"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
     <ImageView
         android:layout_width="12dp"
         android:layout_height="12dp"
@@ -185,14 +192,16 @@
         app:layout_constraintEnd_toEndOf="@+id/iv_bookingitem_from"
         app:layout_constraintBottom_toTopOf="@+id/iv_bookingitem_to"/>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:orientation="horizontal"
         android:id="@+id/ll_bookingitem_action_ongoing"
         android:weightSum="2"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/tv_bookingitem_totime"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/cl_bookingitem_itemview"
         android:layout_marginTop="10dp"
         >
         <RelativeLayout
@@ -265,7 +274,7 @@
         android:layout_height="35dp"
         android:id="@+id/rl_bookingitem_view"
         android:background="@color/Green2"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

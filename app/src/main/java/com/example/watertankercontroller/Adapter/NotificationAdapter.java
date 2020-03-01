@@ -94,7 +94,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             case ITEM:
                 final NotificationViewHolder mVH = (NotificationViewHolder) holder;
                 mVH.notificationheading.setText(notificationlist.get(position).getTitle());
-                mVH.notificationheading.setText(notificationlist.get(position).getText());
+                mVH.notificationmsg.setText(notificationlist.get(position).getText());
                 if(notificationlist.get(position).getIsread().equals("0"))
                     mVH.notificationlayout.setBackground(context.getDrawable(R.drawable.notification_read_background));
                 else
@@ -163,4 +163,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
 
+
+    public void clearNotifications(){
+        notificationlist.clear();
+        notifyDataSetChanged();
+    }
 }

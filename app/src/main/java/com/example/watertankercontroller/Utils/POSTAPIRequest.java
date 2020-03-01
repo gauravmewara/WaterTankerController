@@ -36,7 +36,7 @@ public class POSTAPIRequest {
                     if (response.getInt("error") == 0) {
                         listener.onFetchComplete(response);
                     } else {
-                        listener.onFetchFailure(response.getString("errorCode"));
+                        listener.onFetchFailure(response.getString("message"));
                     }
 
                 } catch (JSONException e) {
@@ -102,7 +102,7 @@ public class POSTAPIRequest {
                     if (response.getInt("error") == 0) {
                         listener.onFetchComplete(response);
                     } else {
-                        listener.onFetchFailure(response.getString("errorCode"));
+                        listener.onFetchFailure(response.getString("message"));
                     }
 
                 } catch (JSONException e) {

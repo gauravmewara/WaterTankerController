@@ -19,6 +19,11 @@ import java.util.ArrayList;
 public class TankerAdapter extends RecyclerView.Adapter<TankerAdapter.TankerViewHolder> {
     ArrayList<TankerModal> tankerlist;
     Context context;
+
+    private static final int ITEM = 0;
+    private static final int LOADING = 1;
+    private boolean isLoadingAdded = false;
+
     public TankerAdapter(Context context, ArrayList<TankerModal> tankerlist){
         this.context = context;
         this.tankerlist = tankerlist;

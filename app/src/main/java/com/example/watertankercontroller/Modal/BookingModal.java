@@ -1,10 +1,31 @@
 package com.example.watertankercontroller.Modal;
 
-public class BookingModal {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class BookingModal implements Parcelable {
     String bookingid,distance,fromlocation,tolocation,fromtime,totime;
     String fromlatitude,fromlongitude,tolatitude,tolongitude,bookingtype;
-    String phonecode,phone,pickuppointid,controllerid,bookedby,message;
+    String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name;
 
+
+    public BookingModal(){}
+
+    public String getController_name() {
+        return controller_name;
+    }
+
+    public void setController_name(String controller_name) {
+        this.controller_name = controller_name;
+    }
+
+    public String getDrivername() {
+        return drivername;
+    }
+
+    public void setDrivername(String drivername) {
+        this.drivername = drivername;
+    }
 
     public String getMessage() {
         return message;
@@ -141,4 +162,66 @@ public class BookingModal {
     public void setTotime(String totime) {
         this.totime = totime;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString("bookingid");
+        parcel.writeString("distance");
+        parcel.writeString("fromlocation");
+        parcel.writeString("tolocation");
+        parcel.writeString("fromtime");
+        parcel.writeString("totime");
+        parcel.writeString("fromlatitude");
+        parcel.writeString("fromlongitude");
+        parcel.writeString("tolatitude");
+        parcel.writeString("tolongitude");
+        parcel.writeString("bookingtype");
+        parcel.writeString("phonecode");
+        parcel.writeString("phone");
+        parcel.writeString("pickuppointid");
+        parcel.writeString("controllerid");
+        parcel.writeString("bookedby");
+        parcel.writeString("message");
+        parcel.writeString("drivername");
+        parcel.writeString("controller_name");
+    }
+
+    protected BookingModal(Parcel in){
+        bookingid = in.readString();
+        distance = in.readString();
+        fromlocation = in.readString();
+        tolocation = in.readString();
+        fromtime = in.readString();
+        totime = in.readString();
+        fromlatitude = in.readString();
+        fromlongitude = in.readString();
+        tolatitude = in.readString();
+        tolongitude = in.readString();
+        bookingtype = in.readString();
+        phonecode = in.readString();
+        phone = in.readString();
+        pickuppointid = in.readString();
+        controllerid = in.readString();
+        bookedby = in.readString();
+        message = in.readString();
+        drivername = in.readString();
+        controller_name = in.readString();
+    }
+
+    public static final Creator<BookingModal> CREATOR = new Creator<BookingModal>() {
+        @Override
+        public BookingModal createFromParcel(Parcel in) {
+            return new BookingModal(in);
+        }
+
+        @Override
+        public BookingModal[] newArray(int size) {
+            return new BookingModal[size];
+        }
+    };
 }

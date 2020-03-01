@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_bookingdetail_bookingid"
-                android:text="123456789"
+                android:text=""
                 android:textColor="@color/Black"
                 android:textSize="13dp"
                 android:layout_marginTop="5dp"
@@ -81,7 +81,7 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text="15 KM"/>
+                android:text=""/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -113,7 +113,7 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text="398/A-2, Shubham tower, 3rd 'C' road, Sardarpura, Jodhpur, Rajasthan 342003"/>
+                android:text=""/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -145,7 +145,7 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text="115-117, Summer Nagar, Boranada, Jodhpur, Rajasthan 3420112"/>
+                android:text=""/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -177,7 +177,7 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text="Max Pitter"/>
+                android:text=""/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -209,7 +209,7 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text="1234567890"/>
+                android:text=""/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -241,7 +241,7 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text="Lorem Ipsum is simply dummy text of the printing and typesetting industry."/>
+                android:text=""/>
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

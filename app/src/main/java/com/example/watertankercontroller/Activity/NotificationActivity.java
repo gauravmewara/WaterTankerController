@@ -1,10 +1,15 @@
 package com.example.watertankercontroller.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -13,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.watertankercontroller.Adapter.NotificationAdapter;
 import com.example.watertankercontroller.Modal.BookingModal;
@@ -26,7 +32,10 @@ import com.example.watertankercontroller.Utils.POSTAPIRequest;
 import com.example.watertankercontroller.Utils.PaginationScrollListener;
 import com.example.watertankercontroller.Utils.RequestQueueService;
 import com.example.watertankercontroller.Utils.SessionManagement;
+import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
+import com.example.watertankercontroller.fcm.Config;
+import com.example.watertankercontroller.fcm.NotificationUtilsFcm;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,33 +47,57 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
 
     RecyclerView notificationlistview;
     NotificationAdapter adapter;
-    ImageView menunotification;
     RelativeLayout menuback;
     TextView pagetitle,nodata;
     ProgressBar notificationprogress;
 
+    RelativeLayout toolbar_notification,noticountlayout;
+    BroadcastReceiver mRegistrationBroadcastReceiver;
+    TextView notiCount;
+    static String notificationCount;
+    static Context context;
+
     private final int PAGE_START  = 1;
     private int TOTAL_PAGES = 1;
-    private static int page_size = 7;
+    private static int page_size = 15;
     //private int page_no = 1;
     LinearLayoutManager mLayoutManager;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private int currentPage = PAGE_START;
     private int totalBookingCount;
-    boolean isListNull = true;
+    boolean isListNull = true,isPush=false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
+        Intent intent = getIntent();
+        Bundle b = intent.getExtras();
+        isPush = false;
+        if(b!=null) {
+            if (b.containsKey("ispush")) {
+                if (b.getString("ispush").equals("1")) {
+                    isPush = true;
+                }
+            }
+        }
         notificationlistview = (RecyclerView)findViewById(R.id.rv_notification);
         notificationlistview.setVisibility(View.GONE);
         nodata = (TextView)findViewById(R.id.tv_notificationitem_nodata);
         nodata.setVisibility(View.GONE);
         menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
-        menunotification = (ImageView) findViewById(R.id.iv_toolabar2_notification);
+        context = this;
+
+
+        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
+        toolbar_notification.setOnClickListener(this);
+        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
+        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
+
+
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.NOTIFICATION_PAGE_TITLE);
         notificationprogress = (ProgressBar)findViewById(R.id.pg_notification);
@@ -104,7 +137,33 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
                 return isLoading;
             }
         });
+        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
+        if(noticount<=0){
+            clearNotificationCount();
+        }else{
+            notiCount.setText(String.valueOf(noticount));
+            noticountlayout.setVisibility(View.VISIBLE);
+        }
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
+                    String message = intent.getStringExtra("message");
+                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                    int count = Integer.parseInt(SessionManagement.getNotificationCount(NotificationActivity.this));
+                    setNotificationCount(count+1,false);
+                }
+            }
+        };
+
         createNotificationData();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     @Override
@@ -113,51 +172,23 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
             case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
+
         }
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if(isPush) {
+            Intent i = new Intent(this, BookingStatus.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
+            finish();
+        }else {
+            super.onBackPressed();
+        }
     }
 
     public void createNotificationData(){
-        /*NotificationModal not1,not2,not3,not4,not5;
-        not1 = new NotificationModal();
-        not2 = new NotificationModal();
-        not3 = new NotificationModal();
-        not4 = new NotificationModal();
-        not5 = new NotificationModal();
-
-        not1.setNotifiactionid("1011");
-        not1.setNotificationheading("The Standard Lorem Ipsum passage, used since 1500s");
-        not1.setNotificationmsg("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut dolore magna aliqua");
-
-        not2.setNotifiactionid("1012");
-        not2.setNotificationheading("The Standard Lorem Ipsum passage, used since 1500s");
-        not2.setNotificationmsg("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut dolore magna aliqua");
-
-        not3.setNotifiactionid("1013");
-        not3.setNotificationheading("The Standard Lorem Ipsum passage, used since 1500s");
-        not3.setNotificationmsg("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut dolore magna aliqua");
-
-        not4.setNotifiactionid("1014");
-        not4.setNotificationheading("The Standard Lorem Ipsum passage, used since 1500s");
-        not4.setNotificationmsg("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut dolore magna aliqua");
-
-        not5.setNotifiactionid("1015");
-        not5.setNotificationheading("The Standard Lorem Ipsum passage, used since 1500s");
-        not5.setNotificationmsg("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut dolore magna aliqua");
-
-        notlist = new ArrayList<>();
-        notlist.add(not1);
-        notlist.add(not2);
-        notlist.add(not3);
-        notlist.add(not4);
-        notlist.add(not5);
-
-        setRecyclerView();*/
-
         try{
             GETAPIRequest getapiRequest=new GETAPIRequest();
             String url = URLs.BASE_URL+URLs.NOTIFICATION_LIST+"?page_size="+String.valueOf(page_size)+"&page=1";
@@ -187,22 +218,29 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
                             }
                         }
                         if(array!=null) {
-                            for (int i = 0; i < array.length(); i++) {
-                                JSONObject jsonObject = (JSONObject) array.get(i);
-                                Log.i("Notification list", jsonObject.toString());
-                                NotificationModal bmod = new NotificationModal();
-                                bmod.setNotifiactionid(jsonObject.getString("_id"));
-                                bmod.setBookingid(jsonObject.getJSONObject("data").getString("booking_id"));
-                                bmod.setIsread("0");
-                                //bmod.setTankerid(jsonObject.getString("tanker_id"));
-                                bmod.setText("currently text not available");
-                                bmod.setTitle(jsonObject.getString("title"));
-                                bmod.setNotificationtype(jsonObject.getString("type"));
-                                tmodalList.add(bmod);
+                            if(array.length()!=0) {
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject jsonObject = (JSONObject) array.get(i);
+                                    Log.i("Notification list", jsonObject.toString());
+                                    NotificationModal bmod = new NotificationModal();
+                                    bmod.setNotifiactionid(jsonObject.getString("_id"));
+                                    bmod.setBookingid(jsonObject.getJSONObject("data").getString("booking_id"));
+                                    bmod.setIsread("0");
+                                    bmod.setControllerid("controller_id");
+                                    bmod.setNotificationtype(jsonObject.getString("type"));
+                                    bmod.setText(jsonObject.getJSONObject("text").getString("en"));
+                                    if (jsonObject.has("title")) {
+                                        bmod.setTitle(jsonObject.getJSONObject("title").getString("en"));
+                                    } else {
+                                        bmod.setTitle("No Title Recieved");
+                                    }
+                                    tmodalList.add(bmod);
+                                }
+                                isListNull = false;
                             }
+
                         }
                         Log.d("Notification List:",array.toString());
-                        isListNull = false;
                         setRecyclerView();
                         //progressBar.setVisibility(View.GONE);
                         adapter.addAll(tmodalList);
@@ -272,10 +310,10 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
                                 bmod.setNotifiactionid(jsonObject.getString("_id"));
                                 bmod.setBookingid(jsonObject.getJSONObject("data").getString("booking_id"));
                                 bmod.setIsread("0");
-                                //bmod.setTankerid(jsonObject.getString("tanker_id"));
-                                bmod.setText("currently text not available");
-                                bmod.setTitle(jsonObject.getString("title"));
+                                bmod.setControllerid("controller_id");
                                 bmod.setNotificationtype(jsonObject.getString("type"));
+                                bmod.setText(jsonObject.getJSONObject("text").getString("en"));
+                                bmod.setTitle(jsonObject.getJSONObject("title").getString("en"));
                                 tmodalList.add(bmod);
                             }
                         }
@@ -345,5 +383,78 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
     };
 
 
+
+    public void reloadNotification(){
+        if (SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes")) {
+            NotificationUtilsFcm.clearNotifications(this);
+            adapter.clearNotifications();
+            notificationprogress.setVisibility(View.VISIBLE);
+            SharedPrefUtil.setPreferences(this, Constants.SHARED_PREF_NOTICATION_TAG, Constants.SHARED_NOTIFICATION_UPDATE_KEY, "no");
+            createNotificationData();
+        }
+    }
+
+
+    public void setNotificationCount(int count,boolean isStarted){
+        notificationCount = SessionManagement.getNotificationCount(context);
+        if(Integer.parseInt(notificationCount)!=count) {
+            notificationCount = String.valueOf(count);
+            if (count <= 0) {
+                clearNotificationCount();
+            } else if (count < 100) {
+                notiCount.setText(String.valueOf(count));
+                noticountlayout.setVisibility(View.VISIBLE);
+            } else {
+                notiCount.setText("99+");
+                noticountlayout.setVisibility(View.VISIBLE);
+            }
+            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
+            /*boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+            if(b2)
+                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");*/
+            reloadNotification();
+        }
+    }
+    public void clearNotificationCount(){
+        notiCount.setText("");
+        noticountlayout.setVisibility(View.GONE);
+    }
+
+    public void newNotification(){
+        Log.i("newNotification","Notification");
+        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        setNotificationCount(count+1,false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register new push message receiver
+        // by doing this, the activity will be notified each time a new message arrives
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(Config.PUSH_NOTIFICATION));
+        // clear the notification area when the app is opened
+        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        int viewCount = Integer.parseInt(notiCount.getText().toString());
+        boolean b1 = sharedCount!=viewCount;
+        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+        if(b2){
+            newNotification();
+        }else if (b1){
+            if (sharedCount < 100 && sharedCount>0) {
+                notiCount.setText(String.valueOf(sharedCount));
+                noticountlayout.setVisibility(View.VISIBLE);
+            } else {
+                notiCount.setText("99+");
+                noticountlayout.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+    }
 
 }

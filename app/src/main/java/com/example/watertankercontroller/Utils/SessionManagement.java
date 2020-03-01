@@ -13,6 +13,8 @@ public class SessionManagement {
     private static final String LANGUAGE= "language";
     private static final String NAME = "name";
     private static final String LOCATION = "location";
+    private static final String SHARED_NOTIFICATION_COUNT_KEY = "notification_count";
+
 
 
     public static boolean checkSignIn(Context con){
@@ -23,7 +25,7 @@ public class SessionManagement {
         }
     }
 
-    public static void createLoginSession(Context con,Boolean islogin, String user_id, String phcode,String phoneno,String username,String token,String language,String location){
+    public static void createLoginSession(Context con,Boolean islogin, String user_id, String phcode,String phoneno,String username,String token,String language,String location,String noticount){
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,IS_LOGGEDIN,islogin);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,USER_ID,user_id);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,PHONE_CODE,phcode);
@@ -32,10 +34,12 @@ public class SessionManagement {
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,USER_TOKEN,token);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,LANGUAGE,language);
         SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,LOCATION,location);
+        SharedPrefUtil.setPreferences(con,Constants.SHARED_PREF_NOTICATION_TAG,SHARED_NOTIFICATION_COUNT_KEY,noticount);
     }
 
     public static void logout(FetchDataListener fetchDataListener, Context con){
         SharedPrefUtil.deletePreference(con,Constants.SHARED_PREF_LOGIN_TAG);
+        SharedPrefUtil.deletePreference(con,Constants.SHARED_PREF_NOTICATION_TAG);
     }
 
     public static HashMap<String,String> getUserData(Context con){
@@ -73,5 +77,8 @@ public class SessionManagement {
     }
     public static String getLocation(Context con){
         return SharedPrefUtil.getStringPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,LOCATION);
+    }
+    public static String getNotificationCount(Context con){
+        return SharedPrefUtil.getStringPreferences(con,Constants.SHARED_PREF_NOTICATION_TAG,SHARED_NOTIFICATION_COUNT_KEY);
     }
 }

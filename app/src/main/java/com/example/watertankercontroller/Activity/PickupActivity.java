@@ -6,12 +6,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.location.Address;
@@ -39,7 +42,9 @@ import com.example.watertankercontroller.Utils.HeadersUtil;
 import com.example.watertankercontroller.Utils.POSTAPIRequest;
 import com.example.watertankercontroller.Utils.RequestQueueService;
 import com.example.watertankercontroller.Utils.SessionManagement;
+import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
+import com.example.watertankercontroller.fcm.Config;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -74,7 +79,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class PickupActivity extends AppCompatActivity implements View.OnClickListener, GoogleMap.OnMarkerClickListener, OnMapReadyCallback, GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraIdleListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,com.google.android.gms.location.LocationListener {
-    ImageView menuback,menunotification,droppin;
+    ImageView droppin;
+
+    RelativeLayout menuback;
+    RelativeLayout toolbar_notification,noticountlayout;
+    BroadcastReceiver mRegistrationBroadcastReceiver;
+    TextView notiCount;
+    static String notificationCount;
+    static Context context;
+
     RelativeLayout pickupview,dropview,confirmview;
     ArrayList<PickupPlaceModal> pickupplacelist;
     TextView pickuplocation,pickupaddress,pagetitle,droplocation,dropaddress;
@@ -108,10 +121,16 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         allpermissionsrequired.add(Manifest.permission.ACCESS_FINE_LOCATION);
         allpermissionsrequired.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         markerlist = new ArrayList<>();
-        menuback = (ImageView)findViewById(R.id.iv_toolbar2_menu);
+        menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
-        menunotification = (ImageView)findViewById(R.id.iv_toolabar2_notification);
-        menunotification.setOnClickListener(this);
+
+        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
+        toolbar_notification.setOnClickListener(this);
+        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
+        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
+        context = this;
+
+
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.MAP_PAGE_TITLE);
         pickupview = (RelativeLayout)findViewById(R.id.rl_pickup_view);
@@ -141,6 +160,25 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         }
         Places.initialize(getApplicationContext(),Constants.MAP_API_KEY);
         PlacesClient placesClient = Places.createClient(this);
+        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
+        if(noticount<=0){
+            clearNotificationCount();
+        }else{
+            notiCount.setText(String.valueOf(noticount));
+            noticountlayout.setVisibility(View.VISIBLE);
+        }
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
+                    String message = intent.getStringExtra("message");
+                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                    int count = Integer.parseInt(SessionManagement.getNotificationCount(PickupActivity.this));
+                    setNotificationCount(count+1,false);
+                }
+            }
+        };
         checkAndRequestPermissions(this,allpermissionsrequired);
     }
 
@@ -148,10 +186,10 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view) {
         Intent intent;
         switch (view.getId()){
-            case R.id.iv_toolbar2_menu:
+            case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
-            case R.id.iv_toolabar2_notification:
+            case R.id.rl_toolbar2_notification_view:
                 intent = new Intent(PickupActivity.this,NotificationActivity.class);
                 startActivity(intent);
                 break;
@@ -161,9 +199,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                 startActivityForResult(intent, Constants.PICKUP_ACTIVITY_PICKUP_LOCATION_REQUEST_CODE);
                 break;
             case R.id.rl_pickupactivity_drop_view:
-                //intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,fields).build(DropActivity.this);
-                //startActivityForResult(intent,Constants.GOOGLE_AUTOCOMPLETE_REQUEST_CODE);
-
                 Toast.makeText(PickupActivity.this,"Google Places Api is temporarily disabled",Toast.LENGTH_LONG).show();
                 droppin.setVisibility(View.VISIBLE);
                 mMap.setOnCameraIdleListener(this);
@@ -195,47 +230,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void createPickUpLocations(){
-        /*PickupPlaceModal place1,place2,place3,place4,place5;
-        place1 = new PickupPlaceModal();
-        place1.setLocationname("Boranada");
-        place1.setLocationaddress("sojati gate, Jodhpur");
-        place1.setLatitude("26.23894689999991");
-        place1.setLongitude("73.02430939999991");*/
-
-        /*place2 = new PickupPlaceModal();
-        place2.setLocationname("Koranada");
-        place2.setLocationaddress("jalori gate, Jodhpur");
-        place2.setLatitude("26.283950");
-        place2.setLongitude("73.016038");
-
-        place3 = new PickupPlaceModal();
-        place3.setLocationname("Moranada");
-        place3.setLocationaddress("siwanchi gate, Jodhpur");
-        place3.setLatitude("26.285797");
-        place3.setLongitude("73.011060");
-
-        place4 = new PickupPlaceModal();
-        place4.setLocationname("Noranada");
-        place4.setLocationaddress("merti gate, Jodhpur");
-        place4.setLatitude("26.294377");
-        place4.setLongitude("73.029674");
-
-        place5 = new PickupPlaceModal();
-        place5.setLocationname("Poranada");
-        place5.setLocationaddress("DPS, Jodhpur");
-        place5.setLatitude("26.263035");
-        place5.setLongitude("72.949058");*/
-
-        //pickupplacelist = new ArrayList<>();
-        //pickupplacelist.add(place1);
-        //pickupplacelist.add(place2);
-        //pickupplacelist.add(place3);
-        //pickupplacelist.add(place4);
-        //pickupplacelist.add(place5);
-
-
-        //mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fg_pickup_map);
-        //mapFragment.getMapAsync(PickupActivity.this);
         try{
 
             String token = SessionManagement.getUserToken(PickupActivity.this);
@@ -266,16 +260,22 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                                 PickupPlaceModal mod = new PickupPlaceModal();
                                 mod.setPlaceid(tempjson.getString("_id"));
                                 JSONObject location = tempjson.getJSONObject("point");
-                                String address = (location.getString("address"));
+                                String address = (location.getString("location"));
                                 JSONObject geometry = location.getJSONObject("geometry");
                                 JSONArray coordinates = geometry.getJSONArray("coordinates");
                                 mod.setLatitude(coordinates.getString(1));
                                 mod.setLongitude(coordinates.getString(0));
                                 //String address = mod.getLocationaddress();
                                 int count = (address.split(Pattern.quote(","),-1).length)-1;
-                                int splitindex = count>3?address.indexOf(',',address.indexOf(',')+1):address.indexOf(',');
-                                mod.setLocationname(address.substring(0,splitindex-1));
-                                mod.setLocationaddress(address.substring(splitindex+1));
+                                int splitindex;
+                                if(count>0) {
+                                    splitindex = count > 3 ? address.indexOf(',', address.indexOf(',') + 1) : address.indexOf(',');
+                                    mod.setLocationname(address.substring(0, splitindex - 1));
+                                    mod.setLocationaddress(address.substring(splitindex + 1).trim());
+                                }else{
+                                    mod.setLocationname(address);
+                                    mod.setLocationaddress("");
+                                }
                                 pickupplacelist.add(mod);
                             }
                             mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fg_pickup_map);
@@ -569,14 +569,13 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     protected void onStart() {
+        super.onStart();
         if (!permissionGranted) {
             return;
         }
-
         if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
-        super.onStart();
     }
 
     @Override
@@ -692,5 +691,67 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         return false;
+    }
+
+
+    public void setNotificationCount(int count,boolean isStarted){
+        notificationCount = SessionManagement.getNotificationCount(context);
+        if(Integer.parseInt(notificationCount)!=count) {
+            notificationCount = String.valueOf(count);
+            if (count <= 0) {
+                clearNotificationCount();
+            } else if (count < 100) {
+                notiCount.setText(String.valueOf(count));
+                noticountlayout.setVisibility(View.VISIBLE);
+            } else {
+                notiCount.setText("99+");
+                noticountlayout.setVisibility(View.VISIBLE);
+            }
+            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
+            boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+            if(b2)
+                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");
+        }
+    }
+    public void clearNotificationCount(){
+        notiCount.setText("");
+        noticountlayout.setVisibility(View.GONE);
+    }
+
+    public void newNotification(){
+        Log.i("newNotification","Notification");
+        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        setNotificationCount(count+1,false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register new push message receiver
+        // by doing this, the activity will be notified each time a new message arrives
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(Config.PUSH_NOTIFICATION));
+        // clear the notification area when the app is opened
+        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        int viewCount = Integer.parseInt(notiCount.getText().toString());
+        boolean b1 = sharedCount!=viewCount;
+        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+        if(b2){
+            newNotification();
+        }else if (b1){
+            if (sharedCount < 100 && sharedCount>0) {
+                notiCount.setText(String.valueOf(sharedCount));
+                noticountlayout.setVisibility(View.VISIBLE);
+            } else {
+                notiCount.setText("99+");
+                noticountlayout.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
     }
 }

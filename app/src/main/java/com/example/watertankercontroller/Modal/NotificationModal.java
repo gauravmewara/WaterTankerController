@@ -1,15 +1,7 @@
 package com.example.watertankercontroller.Modal;
 
 public class NotificationModal {
-    String notifiactionid,bookingid,tankerid,title,text,notificationtype,isread;
-
-    public String getIsread() {
-        return isread;
-    }
-
-    public void setIsread(String isread) {
-        this.isread = isread;
-    }
+    String notifiactionid,bookingid,controllerid,title,text,notificationtype,isread,createtime;
 
     public String getNotifiactionid() {
         return notifiactionid;
@@ -27,12 +19,12 @@ public class NotificationModal {
         this.bookingid = bookingid;
     }
 
-    public String getTankerid() {
-        return tankerid;
+    public String getControllerid() {
+        return controllerid;
     }
 
-    public void setTankerid(String tankerid) {
-        this.tankerid = tankerid;
+    public void setControllerid(String controllerid) {
+        this.controllerid = controllerid;
     }
 
     public String getTitle() {
@@ -57,5 +49,21 @@ public class NotificationModal {
 
     public void setNotificationtype(String notificationtype) {
         this.notificationtype = notificationtype;
+    }
+
+    public String getIsread() {
+        return isread;
+    }
+
+    public void setIsread(String isread) {
+        this.isread = isread;
+    }
+
+    public String getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(String createtime) {
+        this.createtime = createtime;
     }
 }

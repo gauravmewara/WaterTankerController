@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,8 @@ import android.widget.Toast;
 import com.example.watertankercontroller.Modal.PickupPlaceModal;
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
+import com.example.watertankercontroller.Utils.SessionManagement;
+import com.example.watertankercontroller.fcm.Config;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -56,10 +59,16 @@ import java.util.List;
 
 public class DropActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,com.google.android.gms.location.LocationListener {
 
-    RelativeLayout droplayout,confirmlayout;
+    RelativeLayout droplayout,confirmlayout,menuback;
     TextView pickuplocation,pickupaddress,droplocation,dropaddress,pagetitle;
     PickupPlaceModal selectedpickuplocation,selecteddroplocation;
-    ImageView menuback,menunotification;
+
+    RelativeLayout toolbar_notification,noticountlayout;
+    BroadcastReceiver mRegistrationBroadcastReceiver;
+    TextView notiCount;
+    static String notificationCount;
+    static Context context;
+
     Boolean isDropselected = false,fromMapReady = false;
     List<Place.Field> fields = Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS,Place.Field.LAT_LNG);
     private GoogleMap mMap;
@@ -82,10 +91,16 @@ public class DropActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_drop);
         Bundle b = getIntent().getExtras();
         selectedpickuplocation = b.getParcelable(Constants.DROP_LOCATION_INTENT_DATA_TITLE);
-        menuback = (ImageView)findViewById(R.id.iv_toolbar2_menu);
+        menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
-        menunotification=(ImageView)findViewById(R.id.iv_toolabar2_notification);
-        menunotification.setOnClickListener(this);
+
+
+        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
+        toolbar_notification.setOnClickListener(this);
+        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
+        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
+
+
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         droplayout = (RelativeLayout)findViewById(R.id.rl_dropactivity_drop_view);
         droplayout.setOnClickListener(this);
@@ -103,6 +118,8 @@ public class DropActivity extends AppCompatActivity implements View.OnClickListe
         pagetitle.setText(Constants.MAP_PAGE_TITLE);
         pickuplocation.setText(selectedpickuplocation.getLocationname());
         pickupaddress.setText(selectedpickuplocation.getLocationaddress());
+
+
         checkAndRequestPermissions(this,allpermissionsrequired);
     }
 
@@ -110,10 +127,10 @@ public class DropActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         Intent intent;
         switch(view.getId()){
-            case R.id.iv_toolbar2_menu:
+            case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
-            case R.id.iv_toolabar2_notification:
+            case R.id.rl_toolbar2_notification_view:
                 intent = new Intent(DropActivity.this,NotificationActivity.class);
                 startActivity(intent);
                 break;

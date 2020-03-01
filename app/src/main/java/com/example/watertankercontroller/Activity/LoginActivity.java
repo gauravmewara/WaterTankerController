@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     userdetail.getString("name"),
                                     userdetail.getString("token"),
                                     userdetail.getJSONObject("settings").getString("language"),
-                                    userdetail.getString("location"));
+                                    userdetail.getString("location"),"9");
                             Intent i = new Intent(LoginActivity.this, BookingStatus.class);
                             startActivity(i);
                             finish();

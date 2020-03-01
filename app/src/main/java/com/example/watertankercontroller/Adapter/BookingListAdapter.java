@@ -7,26 +7,38 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.watertankercontroller.Activity.BookingDetails;
 import com.example.watertankercontroller.Modal.BookingModal;
+import com.example.watertankercontroller.Modal.PickupPlaceModal;
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
+import com.example.watertankercontroller.Utils.FetchDataListener;
+import com.example.watertankercontroller.Utils.HeadersUtil;
+import com.example.watertankercontroller.Utils.POSTAPIRequest;
+import com.example.watertankercontroller.Utils.SessionManagement;
+import com.example.watertankercontroller.Utils.URLs;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     ArrayList<BookingModal> bookinglist;
@@ -34,6 +46,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     String init_type;
     BottomSheetDialog abortsheet;
     TextView abort_delete,abort_cancel;
+    int removedPosition=-1;
 
     private static final int ITEM = 0;
     private static final int LOADING = 1;
@@ -51,7 +64,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     protected class LoadingViewHolder extends RecyclerView.ViewHolder {
-
         public LoadingViewHolder(View itemView) {
             super(itemView);
         }
@@ -60,6 +72,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public class BookingViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView bookingid,distance,fromlocation,fromtime,tolocation,totime,bookingactiontext;
         RelativeLayout ongoingView,ongoingAbort,bookingview;
+        ConstraintLayout itemview;
         LinearLayout ongoingaction;
 
         public BookingViewHolder(View view){
@@ -78,6 +91,8 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             ongoingAbort.setOnClickListener(this);
             bookingview = (RelativeLayout)view.findViewById(R.id.rl_bookingitem_view);
             bookingview.setOnClickListener(this);
+            itemview = (ConstraintLayout)view.findViewById(R.id.cl_bookingitem_itemview);
+            itemview.setOnClickListener(this);
         }
 
         @Override
@@ -95,7 +110,9 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     abort_delete.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-
+                            abort_delete.setClickable(false);
+                            removedPosition = getAdapterPosition();
+                            abortBooking(bookinglist.get(getAdapterPosition()).getBookingid());
                         }
                     });
                     abort_cancel.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +125,6 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     break;
                 case R.id.rl_bookingitem_view:
                     if(init_type.equals(Constants.PENDING_CALL)){
-
                         abortsheet = new BottomSheetDialog(context);
                         View sheetView2 = LayoutInflater.from(context).inflate(R.layout.activity_abort_dialog,null);
                         abortsheet.setContentView(sheetView2);
@@ -117,7 +133,9 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         abort_delete.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-
+                                abort_delete.setClickable(false);
+                                removedPosition = getAdapterPosition();
+                                abortBooking(bookinglist.get(getAdapterPosition()).getBookingid());
                             }
                         });
                         abort_cancel.setOnClickListener(new View.OnClickListener() {
@@ -131,8 +149,15 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }else{
                         intent = new Intent(context, BookingDetails.class);
                         intent.putExtra("init_type",init_type);
+                        intent.putExtra("booking_id",bookinglist.get(getAdapterPosition()).getBookingid());
                         context.startActivity(intent);
                     }
+                    break;
+                case R.id.cl_bookingitem_itemview:
+                    intent = new Intent(context, BookingDetails.class);
+                    intent.putExtra("init_type",init_type);
+                    intent.putExtra("booking_id",bookinglist.get(getAdapterPosition()).getBookingid());
+                    context.startActivity(intent);
                     break;
             }
         }
@@ -265,4 +290,56 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         return sb;
     }
+
+    public void abortBooking(String bookingidval){
+        try{
+            JSONObject jsonBody = new JSONObject();
+            POSTAPIRequest getapiRequest=new POSTAPIRequest();
+            String url = URLs.BASE_URL+URLs.ABORT_BOOKING+bookingidval;
+            Log.i("url", String.valueOf(url));
+            String token = SessionManagement.getUserToken(context);
+            HeadersUtil headparam = new HeadersUtil(token);
+            getapiRequest.request(context.getApplicationContext(),abortBookingListener,url,headparam,jsonBody);
+        }catch (Exception e){
+            e.printStackTrace();
+            abort_delete.setClickable(true);
+            abortsheet.dismiss();
+        }
+    }
+
+    FetchDataListener abortBookingListener = new FetchDataListener() {
+        @Override
+        public void onFetchComplete(JSONObject data) {
+            try{
+                if(data!=null){
+                    if(data.getInt("error")==0){
+                        Toast.makeText(context,data.getString("message"),Toast.LENGTH_LONG).show();
+                        abort_delete.setClickable(true);
+                        abortsheet.dismiss();
+                        if(removedPosition!=-1){
+                            bookinglist.remove(removedPosition);
+                            removedPosition = -1;
+                            notifyDataSetChanged();
+                        }
+                    }
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+                abort_delete.setClickable(true);
+                abortsheet.dismiss();
+            }
+        }
+
+        @Override
+        public void onFetchFailure(String msg) {
+            abort_delete.setClickable(true);
+            abortsheet.dismiss();
+        }
+
+        @Override
+        public void onFetchStart() {
+
+        }
+    };
+
 }

@@ -17,4 +17,5 @@ public class URLs {
     public static final String UNREAD_NOTIFICATION_COUNT="notification/unread-count";
     public static final String NOTIFICATION_BY_ID="notification/";
     public static final String NEARBY_PICKUP_POINTS="nearby-pickup-points";
+    public static final String NEARBY_TANKERS="nearby-tankers";
 }

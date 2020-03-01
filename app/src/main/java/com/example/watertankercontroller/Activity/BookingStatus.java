@@ -3,8 +3,15 @@ package com.example.watertankercontroller.Activity;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.DrawableWrapper;
@@ -14,6 +21,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -24,32 +32,45 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.example.watertankercontroller.R;
+import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchDataListener;
 import com.example.watertankercontroller.Utils.GETAPIRequest;
 import com.example.watertankercontroller.Utils.HeadersUtil;
 import com.example.watertankercontroller.Utils.POSTAPIRequest;
 import com.example.watertankercontroller.Utils.SessionManagement;
+import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
+import com.example.watertankercontroller.fcm.Config;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class BookingStatus extends AppCompatActivity implements View.OnClickListener {
-    ImageView toolbar_notification;
+    RelativeLayout toolbar_notification,noticountlayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     RelativeLayout bookingform,tankerdetail,logout,completedbooking,pendingbooking,ongoingbooking,abortedbooking,toolbar_toggle;
-    TextView name,location;
+    TextView name,location,notiCount;
     DrawerLayout navdrawer;
+    static String notificationCount;
+    static Context context;
+    BroadcastReceiver mRegistrationBroadcastReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_status);
         navdrawer = (DrawerLayout)findViewById(R.id.nav_drawer_bookingstatus);
         toolbar_toggle = (RelativeLayout) findViewById(R.id.rl_toolbar_menu);
-        toolbar_notification = (ImageView)findViewById(R.id.iv_toolabar_notification);
+        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar_notification_view);
         toolbar_notification.setOnClickListener(this);
+        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar_notificationcount);
+        notiCount = (TextView)findViewById(R.id.tv_toolbar_notificationcount);
+        context = this;
         name = (TextView)findViewById(R.id.tv_nav_name);
         location = (TextView)findViewById(R.id.tv_nav_username);
         bookingform = (RelativeLayout)findViewById(R.id.rl_nav_bookingform);
@@ -73,6 +94,7 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
                 super.onDrawerSlide(drawerView, slideOffset);
             }
         };
+        context = this;
         navdrawer.setScrimColor(Color.TRANSPARENT);
         navdrawer.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
@@ -85,6 +107,24 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
         });
         name.setText(SessionManagement.getName(BookingStatus.this));
         location.setText(SessionManagement.getLocation(BookingStatus.this));
+        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
+        if(noticount<=0){
+            clearNotificationCount();
+        }else{
+            notiCount.setText(String.valueOf(noticount));
+            noticountlayout.setVisibility(View.VISIBLE);
+        }
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
+                    String message = intent.getStringExtra("message");
+                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+                    int count = Integer.parseInt(SessionManagement.getNotificationCount(BookingStatus.this));
+                    setNotificationCount(count+1,false);
+                }
+            }
+        };
     }
 
     public void drawerMenu (View view ){
@@ -127,7 +167,7 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
                 intent = new Intent(BookingStatus.this,AbortedActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.iv_toolabar_notification:
+            case R.id.rl_toolbar_notification_view:
                 intent = new Intent(BookingStatus.this,NotificationActivity.class);
                 startActivity(intent);
                 break;
@@ -185,4 +225,65 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
 
         }
     };
+
+    public void setNotificationCount(int count,boolean isStarted){
+        notificationCount = SessionManagement.getNotificationCount(context);
+        if(Integer.parseInt(notificationCount)!=count) {
+            notificationCount = String.valueOf(count);
+            if (count <= 0) {
+                clearNotificationCount();
+            } else if (count < 100) {
+                notiCount.setText(String.valueOf(count));
+                noticountlayout.setVisibility(View.VISIBLE);
+            } else {
+                notiCount.setText("99+");
+                noticountlayout.setVisibility(View.VISIBLE);
+            }
+            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
+            boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+            if(b2)
+                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");
+        }
+    }
+    public void clearNotificationCount(){
+        notiCount.setText("");
+        noticountlayout.setVisibility(View.GONE);
+    }
+
+    public void newNotification(){
+        Log.i("newNotification","Notification");
+        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        setNotificationCount(count+1,false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register new push message receiver
+        // by doing this, the activity will be notified each time a new message arrives
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(Config.PUSH_NOTIFICATION));
+        // clear the notification area when the app is opened
+        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        int viewCount = Integer.parseInt(notiCount.getText().toString());
+        boolean b1 = sharedCount!=viewCount;
+        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+        if(b2){
+            newNotification();
+        }else if (b1){
+            if (sharedCount < 100 && sharedCount>0) {
+                notiCount.setText(String.valueOf(sharedCount));
+                noticountlayout.setVisibility(View.VISIBLE);
+            } else {
+                notiCount.setText("99+");
+                noticountlayout.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+    }
 }
