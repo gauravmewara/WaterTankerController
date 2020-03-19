@@ -264,7 +264,8 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(Config.PUSH_NOTIFICATION));
         // clear the notification area when the app is opened
-        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
+        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,
+                Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
         int viewCount = Integer.parseInt(notiCount.getText().toString());
         boolean b1 = sharedCount!=viewCount;
         boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");

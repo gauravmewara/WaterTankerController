@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -155,6 +156,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (result != null) {
             notificationlist.remove(position);
             notifyItemRemoved(position);
+            
         }
     }
 
@@ -168,4 +170,5 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notificationlist.clear();
         notifyDataSetChanged();
     }
+
 }

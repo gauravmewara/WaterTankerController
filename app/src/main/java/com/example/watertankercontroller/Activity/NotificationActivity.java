@@ -100,6 +100,7 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
 
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.NOTIFICATION_PAGE_TITLE);
+
         notificationprogress = (ProgressBar)findViewById(R.id.pg_notification);
         notificationprogress.setVisibility(View.VISIBLE);
 
@@ -241,6 +242,7 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
 
                         }
                         Log.d("Notification List:",array.toString());
+                        isListNull = false;
                         setRecyclerView();
                         //progressBar.setVisibility(View.GONE);
                         adapter.addAll(tmodalList);
