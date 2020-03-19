@@ -170,25 +170,25 @@ public class BookingModal implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString("bookingid");
-        parcel.writeString("distance");
-        parcel.writeString("fromlocation");
-        parcel.writeString("tolocation");
-        parcel.writeString("fromtime");
-        parcel.writeString("totime");
-        parcel.writeString("fromlatitude");
-        parcel.writeString("fromlongitude");
-        parcel.writeString("tolatitude");
-        parcel.writeString("tolongitude");
-        parcel.writeString("bookingtype");
-        parcel.writeString("phonecode");
-        parcel.writeString("phone");
-        parcel.writeString("pickuppointid");
-        parcel.writeString("controllerid");
-        parcel.writeString("bookedby");
-        parcel.writeString("message");
-        parcel.writeString("drivername");
-        parcel.writeString("controller_name");
+        parcel.writeString(bookingid);
+        parcel.writeString(distance);
+        parcel.writeString(fromlocation);
+        parcel.writeString(tolocation);
+        parcel.writeString(fromtime);
+        parcel.writeString(totime);
+        parcel.writeString(fromlatitude);
+        parcel.writeString(fromlongitude);
+        parcel.writeString(tolatitude);
+        parcel.writeString(tolongitude);
+        parcel.writeString(bookingtype);
+        parcel.writeString(phonecode);
+        parcel.writeString(phone);
+        parcel.writeString(pickuppointid);
+        parcel.writeString(controllerid);
+        parcel.writeString(bookedby);
+        parcel.writeString(message);
+        parcel.writeString(drivername);
+        parcel.writeString(controller_name);
     }
 
     protected BookingModal(Parcel in){

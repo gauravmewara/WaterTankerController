@@ -86,7 +86,7 @@ public class OngoingActivity extends AppCompatActivity implements View.OnClickLi
         ongoingprogress.setVisibility(View.VISIBLE);
         pagetitle.setText(Constants.ONGOING_PAGE_TITLE);
 
-        adapter = new BookingListAdapter(OngoingActivity.this,Constants.ABORTED_CALL);
+        adapter = new BookingListAdapter(OngoingActivity.this,Constants.ONGOING_CALL);
         mLayoutManager = new LinearLayoutManager(this);
         ongoinglistview.setLayoutManager(mLayoutManager);
         ongoinglistview.setItemAnimator(new DefaultItemAnimator());

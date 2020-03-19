@@ -363,7 +363,7 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
             try {
                 if (data != null) {
                     if (data.getInt("error") == 0) {
-
+                        adapter.setReadCalled(false);
                     }
                 }
             } catch (JSONException e) {

@@ -23,7 +23,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     ArrayList<NotificationModal> notificationlist;
     Context context;
 
+    private static boolean readCalled = false;
     private static final int ITEM = 0;
+    public static int readPos = -1;
     private static final int LOADING = 1;
     private boolean isLoadingAdded = false;
 
@@ -56,8 +58,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             switch (view.getId()) {
                 case R.id.rl_notificationitem_layout:
                     notificationlayout.setClickable(false);
-                    if(context instanceof NotificationActivity)
-                        ((NotificationActivity)context).readNotificationApiCall(notificationlist.get(getAdapterPosition()).getNotifiactionid());
+                    if(context instanceof NotificationActivity && !readCalled) {
+                        setReadCalled(true);
+                        readPos = getAdapterPosition();
+                        ((NotificationActivity) context).readNotificationApiCall(notificationlist.get(getAdapterPosition()).getNotifiactionid());
+                    }
                     break;
             }
         }
@@ -167,5 +172,14 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void clearNotifications(){
         notificationlist.clear();
         notifyDataSetChanged();
+    }
+
+    public void setReadCalled(boolean t){
+        readCalled = t;
+        if(readPos!=-1){
+            notificationlist.remove(readPos);
+            notifyItemRemoved(readPos);
+            readPos =-1;
+        }
     }
 }

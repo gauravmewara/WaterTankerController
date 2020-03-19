@@ -21,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.watertankercontroller.Activity.BookingDetails;
+import com.example.watertankercontroller.Activity.OngoingMapActivity;
 import com.example.watertankercontroller.Modal.BookingModal;
 import com.example.watertankercontroller.Modal.PickupPlaceModal;
 import com.example.watertankercontroller.R;
@@ -100,6 +101,10 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             Intent intent;
             switch (view.getId()) {
                 case R.id.rl_bookingitem_ongoing_view:
+                    BookingModal blmod = bookinglist.get(getAdapterPosition());
+                    intent = new Intent(context, OngoingMapActivity.class);
+                    intent.putExtra("Bookingdata",blmod);
+                    context.startActivity(intent);
                     break;
                 case R.id.rl_bookingitem_ongoing_abort:
                     abortsheet = new BottomSheetDialog(context);
