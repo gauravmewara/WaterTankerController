@@ -16,6 +16,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -42,6 +44,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -251,23 +254,24 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             if(permissionGranted){
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setMyLocationEnabled(true);
+                mMap.setMyLocationEnabled(false);
                 mMap.setTrafficEnabled(false);
                 mMap.setIndoorEnabled(false);
-                mMap.setBuildingsEnabled(true);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
             }
         }else{
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            mMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(false);
             mMap.setTrafficEnabled(false);
             mMap.setIndoorEnabled(false);
-            mMap.setBuildingsEnabled(true);
             mMap.getUiSettings().setZoomControlsEnabled(true);
         }
         pickupLatLng = new LatLng(Double.parseDouble(blmod.getFromlatitude()),Double.parseDouble(blmod.getFromlongitude()));
         dropLatLng = new LatLng(Double.parseDouble(blmod.getTolatitude()),Double.parseDouble(blmod.getTolongitude()));
         MarkerOptions pickupop,dropop,currentop;
+        Bitmap b = BitmapFactory.decodeResource(getResources(),R.drawable.tenklocation_map);
+        Bitmap smallTanker = Bitmap.createScaledBitmap(b,5,5,false);
+        BitmapDescriptor smallTankerIcon = BitmapDescriptorFactory.fromBitmap(smallTanker);
         pickupop = new MarkerOptions()
                 .position(pickupLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.pickuppoint_create));
@@ -276,20 +280,27 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.droppoint_create));
         currentop = new MarkerOptions()
                 .position(pickupLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.tenklocation_map));
+                .flat(true)
+                .alpha(.6f)
+                .anchor(0.5f,0.5f)
+                .rotation(90)
+                .icon(smallTankerIcon);
         pickupMarker = mMap.addMarker(pickupop);
         dropMarker = mMap.addMarker(dropop);
         currentMarker = mMap.addMarker(currentop);
         JSONObject emitparam = new JSONObject();
+        JSONObject refreshParam = new JSONObject();
         try {
             emitparam.put("booking_id", blmod.getBookingid());
+            refreshParam.put("id", blmod.getBookingid());
         }catch (JSONException e){
             e.printStackTrace();
         }
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickupLatLng, 17));
-        new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
+        //new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
         mSocket.emit("subscribe:Booking",emitparam);
+        mSocket.emit("refreshLocation:Booking",refreshParam);
     }
 
     public void setNotificationCount(int count,boolean isStarted){
@@ -397,27 +408,46 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                             String lat = response.getString("lat");
                             String lng = response.getString("lng");
                             LatLng temp = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
-                            if (!isCurrentLocationSame(temp)) {
+                            Bitmap b = BitmapFactory.decodeResource(getResources(),R.drawable.tenklocation_map);
+                            Bitmap smallTanker = Bitmap.createScaledBitmap(b,70,70,false);
+                            BitmapDescriptor smallTankerIcon = BitmapDescriptorFactory.fromBitmap(smallTanker);
+                            boolean locationChanged = false;
+                            if (currentlatlng == null) {
+                                locationChanged = true;
+                            } else {
+                                if(isCurrentLocationSame(temp))
+                                    locationChanged = false;
+                                else
+                                    locationChanged = true;
+                            }
+                            if (locationChanged) {
                                 currentlatlng = temp;
-                                if(isCurrentLocationSame(dropLatLng)){
-                                    mSocket.off("locationUpdate:Booking",onLocationUpdate);
+                                if (isCurrentLocationSame(dropLatLng)) {
+                                    mSocket.off("locationUpdate:Booking", onLocationUpdate);
                                 }
                                 currentop = new MarkerOptions()
+                                        .position(pickupLatLng)
+                                        .flat(true)
+                                        .alpha(.8f)
+                                        .anchor(0.5f,0.5f)
+                                        .rotation(90)
+                                        .icon(smallTankerIcon);
+                                /*currentop = new MarkerOptions()
                                         .position(currentlatlng)
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.tenklocation_map));
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.tenklocation_map));*/
                                 if (currentMarker != null)
                                     currentMarker.remove();
                                 currentMarker = mMap.addMarker(currentop);
-                                if(mapRoute==null){
+                                if (mapRoute == null) {
                                     new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
-                                }else if (!PolyUtil.isLocationOnPath(currentlatlng, mapRoute, true, 10)) {
-                                    if(waypoints==null)
+                                } else if (!PolyUtil.isLocationOnPath(currentlatlng, mapRoute, true, 10)) {
+                                    if (waypoints == null)
                                         waypoints = new ArrayList<>();
-                                    if(waypoints.size()>=10)
+                                    if (waypoints.size() >= 10)
                                         waypoints.remove(0);
-                                    double lt = Double.parseDouble(String.format("%.4f",currentlatlng.latitude));
-                                    double lg = Double.parseDouble(String.format("%.4f",currentlatlng.longitude));
-                                    LatLng t = new LatLng(lt,lg);
+                                    double lt = Double.parseDouble(String.format("%.4f", currentlatlng.latitude));
+                                    double lg = Double.parseDouble(String.format("%.4f", currentlatlng.longitude));
+                                    LatLng t = new LatLng(lt, lg);
                                     waypoints.add(t);
                                     new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
                                 }
