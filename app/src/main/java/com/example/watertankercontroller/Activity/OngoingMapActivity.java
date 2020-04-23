@@ -438,8 +438,10 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                 if (currentMarker != null)
                                     currentMarker.remove();
                                 currentMarker = mMap.addMarker(currentop);
+
                                 if (mapRoute == null) {
                                     new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
+
                                 } else if (!PolyUtil.isLocationOnPath(currentlatlng, mapRoute, true, 10)) {
                                     if (waypoints == null)
                                         waypoints = new ArrayList<>();
@@ -450,6 +452,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                     LatLng t = new LatLng(lt, lg);
                                     waypoints.add(t);
                                     new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
+
                                 }
                             }
                         }
@@ -533,6 +536,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         distance = (long)values[1];
         duration = (long)values[2];
         mapRoute = (ArrayList<LatLng>) values[3];
+
     }
 
     @Override
