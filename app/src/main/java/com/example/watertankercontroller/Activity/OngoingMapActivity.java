@@ -438,10 +438,10 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                 if (currentMarker != null)
                                     currentMarker.remove();
                                 currentMarker = mMap.addMarker(currentop);
-
+                                mSocket.on("locationUpdate:Booking",onLocationUpdate);
                                 if (mapRoute == null) {
                                     new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
-
+                                    mSocket.on("locationUpdate:Booking",onLocationUpdate);
                                 } else if (!PolyUtil.isLocationOnPath(currentlatlng, mapRoute, true, 10)) {
                                     if (waypoints == null)
                                         waypoints = new ArrayList<>();
@@ -452,7 +452,6 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                     LatLng t = new LatLng(lt, lg);
                                     waypoints.add(t);
                                     new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
-
                                 }
                             }
                         }
@@ -536,7 +535,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         distance = (long)values[1];
         duration = (long)values[2];
         mapRoute = (ArrayList<LatLng>) values[3];
-
+        mSocket.on("locationUpdate:Booking",onLocationUpdate);
     }
 
     @Override
@@ -547,3 +546,6 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         mSocket.off("aborted:Booking",onBookingAborted);
     }
 }
+
+
+//line no. 441, 444, 538
