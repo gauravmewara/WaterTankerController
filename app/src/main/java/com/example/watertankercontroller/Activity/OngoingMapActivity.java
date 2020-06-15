@@ -90,6 +90,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     long distance=0,duration=0;
     ArrayList<LatLng> mapRoute=null;
     String directionMode = "driving";
+    String prevpath = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -445,7 +446,8 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.tenklocation_map));*/
                                 currentMarker = mMap.addMarker(currentop);
                                 //mSocket.on("locationUpdate:Booking",onLocationUpdate);
-                                if(path!=null){
+                                if(path!="" && !path.equals(prevpath)){
+                                    prevpath = path;
                                     PointsParser parserTask = new PointsParser(OngoingMapActivity.this, directionMode);
                                     parserTask.execute(path);
                                 } else{
