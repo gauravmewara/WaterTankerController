@@ -32,6 +32,7 @@ import com.example.watertankercontroller.Modal.BookingModal;
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchURL;
+import com.example.watertankercontroller.Utils.PointsParser;
 import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.TaskLoadedCallback;
@@ -79,7 +80,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     boolean permissionGranted = false;
     private GoogleApiClient mGoogleApiClient;
     private LatLng pickupLatLng=null,dropLatLng=null;
-    public static LatLng currentlatlng=null;
+    public  LatLng currentlatlng=null;
     boolean fromBuildMethod = false;
     TextView pagetitle,pickuplocation,pickupaddress,droplocation,dropaddress;
     BookingModal blmod;
@@ -88,6 +89,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     private Socket mSocket;
     long distance=0,duration=0;
     ArrayList<LatLng> mapRoute=null;
+    String directionMode = "driving";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -405,8 +407,12 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                     try {
                         String id = response.getString("id");
                         if(id.equals(blmod.getBookingid())) {
+                            mSocket.off("locationUpdate:Booking", onLocationUpdate);
                             String lat = response.getString("lat");
                             String lng = response.getString("lng");
+                            String path = "";
+                            if(response.has("path"))
+                                path = response.getString("path");
                             LatLng temp = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
                             Bitmap b = BitmapFactory.decodeResource(getResources(),R.drawable.tenklocation_map);
                             Bitmap smallTanker = Bitmap.createScaledBitmap(b,70,70,false);
@@ -422,11 +428,13 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                             }
                             if (locationChanged) {
                                 currentlatlng = temp;
-                                if (isCurrentLocationSame(dropLatLng)) {
+                                /*if (isCurrentLocationSame(dropLatLng)) {
                                     mSocket.off("locationUpdate:Booking", onLocationUpdate);
-                                }
+                                }*/
+                                if (currentMarker != null)
+                                    currentMarker.remove();
                                 currentop = new MarkerOptions()
-                                        .position(pickupLatLng)
+                                        .position(currentlatlng)
                                         .flat(true)
                                         .alpha(.8f)
                                         .anchor(0.5f,0.5f)
@@ -435,23 +443,13 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                 /*currentop = new MarkerOptions()
                                         .position(currentlatlng)
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.tenklocation_map));*/
-                                if (currentMarker != null)
-                                    currentMarker.remove();
                                 currentMarker = mMap.addMarker(currentop);
-                                mSocket.on("locationUpdate:Booking",onLocationUpdate);
-                                if (mapRoute == null) {
-                                    new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
+                                //mSocket.on("locationUpdate:Booking",onLocationUpdate);
+                                if(path!=null){
+                                    PointsParser parserTask = new PointsParser(OngoingMapActivity.this, directionMode);
+                                    parserTask.execute(path);
+                                } else{
                                     mSocket.on("locationUpdate:Booking",onLocationUpdate);
-                                } else if (!PolyUtil.isLocationOnPath(currentlatlng, mapRoute, true, 10)) {
-                                    if (waypoints == null)
-                                        waypoints = new ArrayList<>();
-                                    if (waypoints.size() >= 10)
-                                        waypoints.remove(0);
-                                    double lt = Double.parseDouble(String.format("%.4f", currentlatlng.latitude));
-                                    double lg = Double.parseDouble(String.format("%.4f", currentlatlng.longitude));
-                                    LatLng t = new LatLng(lt, lg);
-                                    waypoints.add(t);
-                                    new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
                                 }
                             }
                         }
@@ -476,7 +474,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         }
     };
 
-    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+    /*private String getUrl(LatLng origin, LatLng dest, String directionMode) {
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
         // Destination of route
@@ -516,7 +514,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         // Building the url to the web service
         String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
         return url;
-    }
+    }*/
 
     public boolean isCurrentLocationSame(LatLng newpos){
         if(currentlatlng.latitude == newpos.latitude && currentlatlng.longitude==newpos.longitude){
