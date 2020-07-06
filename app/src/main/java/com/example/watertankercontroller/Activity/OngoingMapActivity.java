@@ -33,6 +33,7 @@ import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchURL;
 import com.example.watertankercontroller.Utils.PointsParser;
+import com.example.watertankercontroller.Utils.RequestQueueService;
 import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.TaskLoadedCallback;
@@ -52,8 +53,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 import com.google.maps.android.PolyUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,7 +68,7 @@ import io.socket.client.Socket;
 import io.socket.client.IO;
 import io.socket.emitter.Emitter;
 
-public class OngoingMapActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, TaskLoadedCallback {
+public class OngoingMapActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback,TaskLoadedCallback {
     RelativeLayout menuback;
     RelativeLayout toolbar_notification,noticountlayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -91,6 +94,12 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     ArrayList<LatLng> mapRoute=null;
     String directionMode = "driving";
     String prevpath = "";
+    boolean isLocationInProcess = false;
+    boolean isMapReady = false;
+    BitmapDescriptor smallTankerIcon;
+    boolean pathCreated = false;
+    ArrayList<LatLng> finalpath = null;
+    boolean booking_end = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,8 +150,12 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                 }
             }
         };
+        Bitmap bit = BitmapFactory.decodeResource(getResources(), R.drawable.tenklocation_map);
+        Bitmap smallTanker = Bitmap.createScaledBitmap(bit, 70, 70, false);
+        smallTankerIcon = BitmapDescriptorFactory.fromBitmap(smallTanker);
         initSocket();
-        checkAndRequestPermissions(this,allpermissionsrequired);
+        mapFragment.getMapAsync(OngoingMapActivity.this);
+        //checkAndRequestPermissions(this,allpermissionsrequired);
     }
 
     public void initSocket(){
@@ -153,9 +166,210 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         }
         mSocket.on("locationUpdate:Booking",onLocationUpdate);
         mSocket.on("aborted:Booking",onBookingAborted);
+        mSocket.on("end:Booking",onBookingEnd);
         mSocket.connect();
     }
-    public void checkAndRequestPermissions(Activity activity, ArrayList<String> permissions) {
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        /*if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+            if(permissionGranted){
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                mMap.setMyLocationEnabled(false);
+                mMap.setTrafficEnabled(false);
+                mMap.setIndoorEnabled(false);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
+            }
+        }else{
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            mMap.setMyLocationEnabled(false);
+            mMap.setTrafficEnabled(false);
+            mMap.setIndoorEnabled(false);
+            mMap.getUiSettings().setZoomControlsEnabled(true);
+        }*/
+        pickupLatLng = new LatLng(Double.parseDouble(blmod.getFromlatitude()),Double.parseDouble(blmod.getFromlongitude()));
+        dropLatLng = new LatLng(Double.parseDouble(blmod.getTolatitude()),Double.parseDouble(blmod.getTolongitude()));
+        MarkerOptions pickupop,dropop,currentop;
+        pickupop = new MarkerOptions()
+                .position(pickupLatLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pickuppoint_create));
+        dropop = new MarkerOptions()
+                .position(dropLatLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.droppoint_create));
+        /*currentop = new MarkerOptions()
+                .position(pickupLatLng)
+                .flat(true)
+                .alpha(.6f)
+                .anchor(0.5f,0.5f)
+                .rotation(90)
+                .icon(smallTankerIcon);*/
+        pickupMarker = mMap.addMarker(pickupop);
+        dropMarker = mMap.addMarker(dropop);
+        //currentMarker = mMap.addMarker(currentop);
+        JSONObject emitparam = new JSONObject();
+        JSONObject refreshParam = new JSONObject();
+        try {
+            emitparam.put("booking_id", blmod.getBookingid());
+            refreshParam.put("id", blmod.getBookingid());
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickupLatLng, 17));
+        isMapReady = true;
+        //new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
+        mSocket.emit("subscribe:Booking",emitparam);
+        mSocket.emit("refreshLocation:Booking",refreshParam);
+    }
+
+
+    private Emitter.Listener onLocationUpdate = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            OngoingMapActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject response = (JSONObject)args[0];
+                    try {
+                        String id = response.getString("id");
+                        if(id.equals(blmod.getBookingid())) {
+                            if (!isLocationInProcess) {
+                                //mSocket.off("locationUpdate:Booking", onLocationUpdate);
+                                isLocationInProcess = true;
+                                String lat = response.getString("lat");
+                                String lng = response.getString("lng");
+                                Float bearing = Float.parseFloat(response.getString("bearing"));
+                                String path = "";
+                                if (response.has("path"))
+                                    path = response.getString("path");
+                                currentlatlng = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                                if (currentMarker != null)
+                                    currentMarker.remove();
+                                currentop = new MarkerOptions()
+                                        .position(currentlatlng)
+                                        .flat(true)
+                                        .alpha(.8f)
+                                        .anchor(0.5f, 0.5f)
+                                        .rotation(90 + bearing)
+                                        .icon(smallTankerIcon);
+                                currentMarker = mMap.addMarker(currentop);
+                                if (path != "" && !pathCreated) {
+                                    prevpath = path;
+                                    PointsParser parserTask = new PointsParser(OngoingMapActivity.this, directionMode);
+                                    parserTask.execute(path);
+                                } else {
+                                    //mSocket.on("locationUpdate:Booking", onLocationUpdate);
+                                    isLocationInProcess = false;
+                                }
+
+                            }
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                        isLocationInProcess = false;
+                    }
+
+                }
+            });
+        }
+    };
+
+
+    private Emitter.Listener onBookingAborted = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            OngoingMapActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject response = (JSONObject)args[0];
+                    try{
+                        String id = response.getString("id");
+                        if(id.equals(blmod.getBookingid())) {
+                            mSocket.off("locationUpdate:Booking",onLocationUpdate);
+                            mSocket.off("aborted:Booking",onBookingAborted);
+                            mSocket.off("end:Booking",onBookingEnd);
+                            mSocket.disconnect();
+                            RequestQueueService.showAlert("","Booking Cancelled",OngoingMapActivity.this);
+                            booking_end = true;
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onBookingEnd = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            OngoingMapActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject response = (JSONObject)args[0];
+                    try{
+                        String id = response.getString("id");
+                        if(id.equals(blmod.getBookingid())) {
+                            mSocket.off("locationUpdate:Booking",onLocationUpdate);
+                            mSocket.off("aborted:Booking",onBookingAborted);
+                            mSocket.off("end:Booking",onBookingEnd);
+                            mSocket.disconnect();
+                            JSONObject snap = response.getJSONObject("snapped_path");
+                            String distance_travelled = response.getString("distance_travelled");
+                            JSONArray snaparray = snap.getJSONArray("snapped_points");
+                            if(finalpath == null)
+                                finalpath = new ArrayList<>();
+                            for(int i=0;i<snaparray.length();i++){
+                                JSONObject point = snaparray.getJSONObject(i);
+                                JSONObject location = point.getJSONObject("location");
+                                double lat = Double.parseDouble(location.getString("latitude"));
+                                double longi = Double.parseDouble(location.getString("longitude"));
+                                LatLng temp = new LatLng(lat,longi);
+                                finalpath.add(temp);
+                            }
+                            PolylineOptions op = new PolylineOptions();
+                            op.width(30);
+                            op.color(ContextCompat.getColor(OngoingMapActivity.this,R.color.Green2));
+                            op.addAll(finalpath);
+                            if(currentPolyline!=null)
+                                currentPolyline.remove();
+                            //int size = values.length;
+                            currentPolyline = mMap.addPolyline(op);
+                            RequestQueueService.showAlert("","Trip finished",OngoingMapActivity.this);
+                            booking_end = true;
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if(currentPolyline!=null)
+            currentPolyline.remove();
+        //int size = values.length;
+        currentPolyline = mMap.addPolyline((PolylineOptions)values[0]);
+        distance = (long)values[1];
+        duration = (long)values[2];
+        mapRoute = (ArrayList<LatLng>) values[3];
+        pathCreated = true;
+        isLocationInProcess = false;
+        //mSocket.on("locationUpdate:Booking",onLocationUpdate);
+    }
+
+
+
+
+
+
+
+    /*public void checkAndRequestPermissions(Activity activity, ArrayList<String> permissions) {
         ArrayList<String> listPermissionsNeeded = new ArrayList<>();
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -169,9 +383,9 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
             buildGoogleApiClient();
             //createPickUpLocations();
         }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
             case Constants.MULTIPLE_PERMISSIONS_REQUEST_CODE:
@@ -194,7 +408,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+    }*/
 
 
 
@@ -228,7 +442,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    @Override
+    /*@Override
     public void onConnected(@Nullable Bundle bundle) {
         if (!permissionGranted) {
             return;
@@ -249,62 +463,9 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.i("PICKUP ACTIVITY:", "Connection failed. Error: " + connectionResult.getErrorCode());
-    }
+    }*/
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            if(permissionGranted){
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setMyLocationEnabled(false);
-                mMap.setTrafficEnabled(false);
-                mMap.setIndoorEnabled(false);
-                mMap.getUiSettings().setZoomControlsEnabled(true);
-            }
-        }else{
-            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            mMap.setMyLocationEnabled(false);
-            mMap.setTrafficEnabled(false);
-            mMap.setIndoorEnabled(false);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-        }
-        pickupLatLng = new LatLng(Double.parseDouble(blmod.getFromlatitude()),Double.parseDouble(blmod.getFromlongitude()));
-        dropLatLng = new LatLng(Double.parseDouble(blmod.getTolatitude()),Double.parseDouble(blmod.getTolongitude()));
-        MarkerOptions pickupop,dropop,currentop;
-        Bitmap b = BitmapFactory.decodeResource(getResources(),R.drawable.tenklocation_map);
-        Bitmap smallTanker = Bitmap.createScaledBitmap(b,5,5,false);
-        BitmapDescriptor smallTankerIcon = BitmapDescriptorFactory.fromBitmap(smallTanker);
-        pickupop = new MarkerOptions()
-                .position(pickupLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pickuppoint_create));
-        dropop = new MarkerOptions()
-                .position(dropLatLng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.droppoint_create));
-        currentop = new MarkerOptions()
-                .position(pickupLatLng)
-                .flat(true)
-                .alpha(.6f)
-                .anchor(0.5f,0.5f)
-                .rotation(90)
-                .icon(smallTankerIcon);
-        pickupMarker = mMap.addMarker(pickupop);
-        dropMarker = mMap.addMarker(dropop);
-        currentMarker = mMap.addMarker(currentop);
-        JSONObject emitparam = new JSONObject();
-        JSONObject refreshParam = new JSONObject();
-        try {
-            emitparam.put("booking_id", blmod.getBookingid());
-            refreshParam.put("id", blmod.getBookingid());
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickupLatLng, 17));
-        //new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
-        mSocket.emit("subscribe:Booking",emitparam);
-        mSocket.emit("refreshLocation:Booking",refreshParam);
-    }
 
     public void setNotificationCount(int count,boolean isStarted){
         notificationCount = SessionManagement.getNotificationCount(context);
@@ -336,7 +497,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         setNotificationCount(count+1,false);
     }
 
-    protected synchronized void buildGoogleApiClient(){
+    /*protected synchronized void buildGoogleApiClient(){
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -344,7 +505,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                 .build();
         fromBuildMethod = true;
         mGoogleApiClient.connect();
-    }
+    }*/
 
     @Override
     protected void onResume() {
@@ -383,140 +544,20 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         if (!permissionGranted) {
             return;
         }
-        if (mGoogleApiClient != null) {
+        /*if (mGoogleApiClient != null) {
             mGoogleApiClient.connect();
-        }
+        }*/
     }
 
     @Override
     protected void onStop() {
-        if(mGoogleApiClient!=null) {
+        /*if(mGoogleApiClient!=null) {
             if (mGoogleApiClient.isConnected()) {
                 mGoogleApiClient.disconnect();
             }
-        }
+        }*/
         super.onStop();
     }
-
-    private Emitter.Listener onLocationUpdate = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            OngoingMapActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject response = (JSONObject)args[0];
-                    try {
-                        String id = response.getString("id");
-                        if(id.equals(blmod.getBookingid())) {
-                            mSocket.off("locationUpdate:Booking", onLocationUpdate);
-                            String lat = response.getString("lat");
-                            String lng = response.getString("lng");
-                            String path = "";
-                            if(response.has("path"))
-                                path = response.getString("path");
-                            LatLng temp = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
-                            Bitmap b = BitmapFactory.decodeResource(getResources(),R.drawable.tenklocation_map);
-                            Bitmap smallTanker = Bitmap.createScaledBitmap(b,70,70,false);
-                            BitmapDescriptor smallTankerIcon = BitmapDescriptorFactory.fromBitmap(smallTanker);
-                            boolean locationChanged = false;
-                            if (currentlatlng == null) {
-                                locationChanged = true;
-                            } else {
-                                if(isCurrentLocationSame(temp))
-                                    locationChanged = false;
-                                else
-                                    locationChanged = true;
-                            }
-                            if (locationChanged) {
-                                currentlatlng = temp;
-                                /*if (isCurrentLocationSame(dropLatLng)) {
-                                    mSocket.off("locationUpdate:Booking", onLocationUpdate);
-                                }*/
-                                if (currentMarker != null)
-                                    currentMarker.remove();
-                                currentop = new MarkerOptions()
-                                        .position(currentlatlng)
-                                        .flat(true)
-                                        .alpha(.8f)
-                                        .anchor(0.5f,0.5f)
-                                        .rotation(90)
-                                        .icon(smallTankerIcon);
-                                /*currentop = new MarkerOptions()
-                                        .position(currentlatlng)
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.tenklocation_map));*/
-                                currentMarker = mMap.addMarker(currentop);
-                                //mSocket.on("locationUpdate:Booking",onLocationUpdate);
-                                if(path!="" && !path.equals(prevpath)){
-                                    prevpath = path;
-                                    PointsParser parserTask = new PointsParser(OngoingMapActivity.this, directionMode);
-                                    parserTask.execute(path);
-                                } else{
-                                    mSocket.on("locationUpdate:Booking",onLocationUpdate);
-                                }
-                            }
-                        }
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-
-                }
-            });
-        }
-    };
-
-    private Emitter.Listener onBookingAborted = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            OngoingMapActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });
-        }
-    };
-
-    /*private String getUrl(LatLng origin, LatLng dest, String directionMode) {
-        // Origin of route
-        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-        // Destination of route
-        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-        // Mode
-        String mode = "mode=" + directionMode;
-
-        String waypoint = "&waypoints=";
-        String parameters = "";
-        try {
-            if(waypoints!=null) {
-                for (int i = 0; i < waypoints.size(); i++) {
-                    LatLng temp = waypoints.get(i);
-                    if (i == 0) {
-                        waypoint = waypoint + "via:-" + temp.latitude + "%2C" + temp.longitude;
-                    } else {
-                        waypoint = waypoint + "%7Cvia:-" + temp.latitude + "%2C" + temp.longitude;
-                    }
-                }
-                if (waypoints.size() <= 0) {
-                    parameters = str_origin + "&" + str_dest + "&" + mode;
-                } else {
-                    parameters = str_origin + "&" + str_dest + "&" + waypoint + "&" + mode;
-                }
-            }else{
-                parameters = str_origin + "&" + str_dest + "&" + mode;
-            }
-            // Building the parameters to the web service
-
-        }catch (Exception e){
-            e.printStackTrace();
-            parameters = str_origin + "&" + str_dest + "&" + mode;
-        }
-        //String parameters = str_origin + "&" + str_dest + "&" + waypoint + "&" + mode;
-        // Output format
-        String output = "json";
-        // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
-        return url;
-    }*/
 
     public boolean isCurrentLocationSame(LatLng newpos){
         if(currentlatlng.latitude == newpos.latitude && currentlatlng.longitude==newpos.longitude){
@@ -527,23 +568,25 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    public void onTaskDone(Object... values) {
-        if(currentPolyline!=null)
-            currentPolyline.remove();
-        //int size = values.length;
-        currentPolyline = mMap.addPolyline((PolylineOptions)values[0]);
-        distance = (long)values[1];
-        duration = (long)values[2];
-        mapRoute = (ArrayList<LatLng>) values[3];
-        mSocket.on("locationUpdate:Booking",onLocationUpdate);
+    protected void onDestroy() {
+        mSocket.off("locationUpdate:Booking",onLocationUpdate);
+        mSocket.off("aborted:Booking",onBookingAborted);
+        mSocket.off("end:Booking",onBookingEnd);
+        mSocket.disconnect();
+        super.onDestroy();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mSocket.disconnect();
-        mSocket.off("locationUpdate:Booking",onLocationUpdate);
-        mSocket.off("aborted:Booking",onBookingAborted);
+    public void onBackPressed() {
+        if(booking_end) {
+            Intent newIntent = new Intent(this, BookingStatus.class);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(newIntent);
+            finish();
+        }else {
+            super.onBackPressed();
+        }
     }
 }
 

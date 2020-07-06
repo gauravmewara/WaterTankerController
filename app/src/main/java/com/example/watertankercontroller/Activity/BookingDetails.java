@@ -27,6 +27,10 @@ import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
 import com.example.watertankercontroller.fcm.Config;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,19 +38,22 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class BookingDetails extends AppCompatActivity implements View.OnClickListener {
+public class BookingDetails extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
 
     TextView bookingid,distance,pickup,drop,drivername,contact_no,message,pagetitle;
     ImageView calltous;
 
     RelativeLayout menuback;
     String init_type,bookingidval;
-
+    SupportMapFragment mapFragment;
+    RelativeLayout maplayout;
     RelativeLayout toolbar_notification,noticountlayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
     TextView notiCount;
     static String notificationCount;
+    ArrayList<LatLng>finalpath = null;
     static Context context;
+    GoogleMap mMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,13 +72,13 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
         calltous.setOnClickListener(this);
         menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
-
+        maplayout = (RelativeLayout)findViewById(R.id.rl_bookingdetail_map);
         toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
         toolbar_notification.setOnClickListener(this);
         noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
         notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
         context = this;
-
+        mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fg_booking_map);
         if(init_type.equals(Constants.COMPLETED_CALL)){
             pagetitle.setText("Completed Booking Details");
         }else if(init_type.equals(Constants.ABORTED_CALL)){
@@ -165,7 +172,6 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             drivername.setText(bmod.getDrivername());
                             bmod.setController_name(jsonObject.getString("controller_name"));
 
-
                             JSONObject distance1 = jsonObject.getJSONObject("distance");
                             bmod.setDistance(distance1.getString("text"));
                             distance.setText(bmod.getDistance());
@@ -181,6 +187,21 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             bmod.setFromlongitude(pickupoint.getJSONObject("geometry").getJSONArray("coordinates").getString(0));
                             bmod.setFromlatitude(pickupoint.getJSONObject("geometry").getJSONArray("coordinates").getString(1));
                             pickup.setText(bmod.getFromlocation());
+                            if(jsonObject.has("snapped_path")){
+                                JSONObject snap = jsonObject.getJSONObject("snapped_path");
+                                JSONArray snaparray = jsonObject.getJSONArray("snapped_points");
+                                if(finalpath == null)
+                                    finalpath = new ArrayList<>();
+                                for(int i=0;i<snaparray.length();i++){
+                                    JSONObject point = snaparray.getJSONObject(i);
+                                    JSONObject location = point.getJSONObject("location");
+                                    double lat = Double.parseDouble(location.getString("latitude"));
+                                    double longi = Double.parseDouble(location.getString("longitude"));
+                                    LatLng temp = new LatLng(lat,longi);
+                                    finalpath.add(temp);
+                                }
+                                mapFragment.getMapAsync(BookingDetails.this);
+                            }
                         }
                     }
                 }
@@ -264,5 +285,12 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        maplayout.setVisibility(View.VISIBLE);
+
     }
 }
