@@ -343,6 +343,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                         }
                     }catch (Exception e){
                         e.printStackTrace();
+                        Toast.makeText(OngoingMapActivity.this,"Error In Location End Listener",Toast.LENGTH_LONG);
                     }
                 }
             });
