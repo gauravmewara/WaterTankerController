@@ -12,12 +12,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         android:background="@drawable/gradient_background_main"
         android:layout_below="@+id/include_bookingdetails"
         >
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/rl_bookingdetail_main"
             android:layout_marginTop="40dp"
             android:layout_marginLeft="15dp"
@@ -242,6 +243,20 @@
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
                 android:text=""/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_marginTop="3dp"
+                android:visibility="gone"
+                android:id="@+id/rl_bookingdetail_map"
+                android:layout_below="@+id/tv_bookingdetail_message">
+                <fragment
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/fg_booking_map"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    />
+            </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

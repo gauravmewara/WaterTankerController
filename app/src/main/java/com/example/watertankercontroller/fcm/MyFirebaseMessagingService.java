@@ -69,7 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Map<String,String> s = remoteMessage.getData();
                 Log.e(TAG, "string: " + s.toString());
                 JSONObject json = new JSONObject(s);
-                showNotifications("Seremo",json);
+                showNotifications("Tanker Controller",json);
             } catch (Exception e) {
                 Log.e(TAG, "Exception at Ini: " + e.getMessage());
                 e.printStackTrace();

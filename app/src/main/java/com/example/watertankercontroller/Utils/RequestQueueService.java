@@ -80,6 +80,18 @@ public class RequestQueueService {
         }
     }
 
+    public static void showAlert(String title, String message, final FragmentActivity context) {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(title);
+            builder.setMessage(message);
+            builder.setPositiveButton("OK", null);
+            builder.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     //Start showing progress
     public static void showProgressDialog(final Activity activity) {
         activity.runOnUiThread(new Runnable() {
@@ -88,7 +100,6 @@ public class RequestQueueService {
                 if (mProgressDialog != null) {
                     if (mProgressDialog.isShowing() == true) cancelProgressDialog();
                 }
-
                 mProgressDialog = new Dialog(activity);
                 mProgressDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
                 mProgressDialog.setContentView(R.layout.progress_indicator);
