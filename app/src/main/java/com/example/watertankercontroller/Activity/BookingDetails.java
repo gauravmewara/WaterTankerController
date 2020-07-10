@@ -1,6 +1,7 @@
 package com.example.watertankercontroller.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.content.BroadcastReceiver;
@@ -27,10 +28,14 @@ import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
 import com.example.watertankercontroller.fcm.Config;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -188,8 +193,9 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             bmod.setFromlatitude(pickupoint.getJSONObject("geometry").getJSONArray("coordinates").getString(1));
                             pickup.setText(bmod.getFromlocation());
                             if(jsonObject.has("snapped_path")){
-                                JSONObject snap = jsonObject.getJSONObject("snapped_path");
-                                JSONArray snaparray = jsonObject.getJSONArray("snapped_points");
+                                String snapstring = jsonObject.getString("snapped_path");
+                                JSONObject snap = new JSONObject(snapstring);
+                                JSONArray snaparray = snap.getJSONArray("snappedpoints");
                                 if(finalpath == null)
                                     finalpath = new ArrayList<>();
                                 for(int i=0;i<snaparray.length();i++){
@@ -291,6 +297,24 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         maplayout.setVisibility(View.VISIBLE);
+        PolylineOptions op = new PolylineOptions();
+        op.addAll(finalpath);
+        op.width(30);
+        op.color(ContextCompat.getColor(BookingDetails.this,R.color.Green2));
+        mMap.addPolyline(op);
+        LatLng pickupLatLng = finalpath.get(0);
+        LatLng dropLatLng = finalpath.get(finalpath.size()-1);
+        MarkerOptions pickupop,dropop,currentop;
+        pickupop = new MarkerOptions()
+                .position(pickupLatLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.pickuppoint_create));
+        dropop = new MarkerOptions()
+                .position(dropLatLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.droppoint_create));
+        mMap.addMarker(pickupop);
+        mMap.addMarker(dropop);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickupLatLng, 15));
+
 
     }
 }

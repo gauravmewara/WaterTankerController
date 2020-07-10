@@ -179,7 +179,7 @@ public class TankerDetails extends AppCompatActivity implements View.OnClickList
                                     mod.setTankercapacity(tempjson.getString("tanker_capacity"));
                                     mod.setLocation(tempjson.getString("location"));
                                     mod.setOngoing(tempjson.getString("activity_status"));
-                                    mod.setTankerid(tempjson.getString("id"));
+                                    //mod.setTankerid(tempjson.getString("id"));
                                     mod.setContractorid(tempjson.getString("contractor_id"));
                                     mod.setDrivermobile(tempjson.getString("phone"));
                                     mod.setFitnessdate(tempjson.getString("fitness_date"));

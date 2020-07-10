@@ -88,14 +88,10 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
         message.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
                 messagelength.setText(String.valueOf(message.getText().length()));

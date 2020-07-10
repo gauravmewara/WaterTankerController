@@ -42,6 +42,7 @@ public class TankerAdapter extends RecyclerView.Adapter<TankerAdapter.TankerView
         holder.contractorname.setText(tankerlist.get(position).getContractorname());
         holder.tankermodel.setText(tankerlist.get(position).getTankerModelNo());
         holder.tankercapacity.setText(tankerlist.get(position).getTankercapacity());
+       // holder.tankerimg.setImageBitmap(tankerlist.get(position).getTankerimage());
         if(tankerlist.get(position).getOngoing().equals("0")){
             holder.tankerstatus.setImageResource(R.drawable.tanker_offline_icon);
         }else{
