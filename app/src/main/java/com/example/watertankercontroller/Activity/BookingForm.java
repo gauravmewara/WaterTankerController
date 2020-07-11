@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -38,7 +39,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 public class BookingForm extends AppCompatActivity implements View.OnClickListener {
-    EditText mobile,message;
+    EditText mobile,message,geofence;
     TextView pagetitle;
     TextView pickuplocation,pickupaddress,droplocation,dropaddress,messagelength;
     RelativeLayout create;
@@ -48,7 +49,7 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
     PickupPlaceModal selectedpickup = null;
     PickupPlaceModal selecteddrop = null;
 
-    RelativeLayout toolbar_notification,noticountlayout;
+    RelativeLayout toolbar_notification,noticountlayout,messageLayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
     TextView notiCount;
     static String notificationCount;
@@ -69,6 +70,8 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
         notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
         context = this;
 
+        messageLayout=(RelativeLayout)findViewById(R.id.cl_bookingform_message);
+        messageLayout.setOnClickListener(this);
         pickup = (ImageView)findViewById(R.id.iv_bookingform_pickupmap);
         pickupLayout = (ConstraintLayout)findViewById(R.id.cl_bookingform_pickup);
         pickupLayout.setOnClickListener(this);
@@ -78,6 +81,7 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
         create = (RelativeLayout)findViewById(R.id.rl_bookingform_create);
         create.setOnClickListener(this);
         mobile = (EditText)findViewById(R.id.et_bookingform_mobile);
+        geofence=(EditText)findViewById(R.id.et_bookingform_geofence_in_meters);
         message = (EditText)findViewById(R.id.et_bookingform_meesage);
         pagetitle.setText(Constants.BOOKINGFORM_PAGE_TITLE);
         pickuplocation = (TextView)findViewById(R.id.tv_bookingform_pickup_location1);
@@ -125,6 +129,14 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
         switch (view.getId()){
             case R.id.rl_toolbar2_menu:
                 onBackPressed();
+                break;
+            case R.id.cl_bookingform_message:
+
+                message.clearFocus();
+                message.requestFocus();
+                message.isFocused();
+                InputMethodManager openkeyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                openkeyboard.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
                 break;
             case R.id.rl_toolbar2_notification_view:
                 intent = new Intent(BookingForm.this,NotificationActivity.class);
@@ -217,7 +229,7 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
             jsonbody.put("lat",selecteddrop.getLatitude());
             jsonbody.put("lng",selecteddrop.getLongitude());
             jsonbody.put("location",selecteddrop.getLocationname()+","+selecteddrop.getLocationaddress());
-            jsonbody.put("geofence_radius","100");
+            jsonbody.put("geofence_radius",geofence.getText().toString().trim());
             jsonbody.put("phone",mobile.getText().toString().trim());
             if(message.getText().toString().trim().length()>0){
                 jsonbody.put("message",message.getText().toString().trim());

@@ -8,6 +8,7 @@
     android:layout_marginLeft="3dp"
     android:layout_marginRight="3dp"
     android:layout_marginBottom="5dp"
+    android:background="@color/White"
     android:id="@+id/rl_notificationitem_layout">
     <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
         android:layout_width="match_parent"
