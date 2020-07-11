@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -58,6 +59,7 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
     static String notificationCount;
     ArrayList<LatLng>finalpath = null;
     static Context context;
+    BookingModal bmod;
     GoogleMap mMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,16 +121,22 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
+        Intent intent;
         switch (view.getId()){
             case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
             case R.id.rl_toolbar2_notification_view:
-                Intent intent;
                 intent = new Intent(BookingDetails.this,NotificationActivity.class);
                 startActivity(intent);
                 break;
             case R.id.iv_bookingdetail_bookingid_call:
+                if(bmod!=null) {
+                    String phone = "+91" + bmod.getPhone();
+                    intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                    startActivity(intent);
+                }
+
                 break;
         }
     }
@@ -160,7 +168,7 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                     if (response.getInt("error")==0) {
                         JSONObject jsonObject = response.getJSONObject("data");
                         if(jsonObject!=null) {
-                            BookingModal bmod = new BookingModal();
+                            bmod = new BookingModal();
                             bmod.setBookingid(jsonObject.getString("_id"));
                             bookingid.setText(bmod.getBookingid());
                             bmod.setPhonecode(jsonObject.getString("phone_country_code"));

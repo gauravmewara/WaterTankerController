@@ -11,6 +11,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
@@ -51,7 +53,7 @@ public class GETAPIRequest {
                     String errorMessage      = "";
                     try {
                         JSONObject errorJson = new JSONObject(volley_error.getMessage().toString());
-                        if(errorJson.has("error")) errorMessage = errorJson.getString("errorCode");
+                        if(errorJson.has("error")) errorMessage = errorJson.getString("message");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -110,7 +112,7 @@ public class GETAPIRequest {
                     String errorMessage      = "";
                     try {
                         JSONObject errorJson = new JSONObject(volley_error.getMessage().toString());
-                        if(errorJson.has("error")) errorMessage = errorJson.getString("errorCode");
+                        if(errorJson.has("error")) errorMessage = errorJson.getString("message");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -227,5 +229,83 @@ public class GETAPIRequest {
 
         RequestQueueService.getInstance(context).addToRequestQueue(postRequest.setShouldCache(false));
     }
+
+
+
+
+
+
+
+    public void requestString(final Context context, final FetchDataListener listener, final String ApiURL,final HeadersUtil headparam) throws JSONException {
+        if (listener != null) {
+            listener.onFetchStart();
+        }
+
+        StringRequest postRequest = new StringRequest(Request.Method.GET, ApiURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            Log.d("Response",response.toString());
+                            /*if (listener != null) {
+                                if(response.getInt("error")!= 1) {
+                                    listener.onFetchComplete(response);
+                                }else {
+                                    listener.onFetchFailure(response.getString("error"));
+                                }
+                            }*/
+                            JSONObject json = new JSONObject();
+                            json.put("error",0);
+                            listener.onFetchComplete(json);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof NoConnectionError) {
+                    listener.onFetchFailure("Network Connectivity Problem");
+                } else if (error.networkResponse != null && error.networkResponse.data != null) {
+                    VolleyError volley_error = new VolleyError(new String(error.networkResponse.data));
+                    String errorMessage      = "";
+                    try {
+                        JSONObject errorJson = new JSONObject(volley_error.getMessage().toString());
+                        if(errorJson.has("error")) errorMessage = errorJson.getString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (errorMessage.isEmpty()) {
+                        errorMessage = volley_error.getMessage();
+                    }
+
+                    if (listener != null) listener.onFetchFailure(errorMessage);
+                } else {
+                    listener.onFetchFailure("Something went wrong. Please try again later");
+                    error.printStackTrace();
+                }
+
+            }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization",headparam.getAuthorization());
+                return headers;
+            }
+
+        };
+
+        postRequest.setRetryPolicy(new DefaultRetryPolicy(
+                50000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueueService.getInstance(context).addToRequestQueue(postRequest.setShouldCache(false));
+    }
+
+
 
 }

@@ -198,7 +198,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                 startActivityForResult(intent, Constants.PICKUP_ACTIVITY_PICKUP_LOCATION_REQUEST_CODE);
                 break;
             case R.id.rl_pickupactivity_drop_view:
-                Toast.makeText(PickupActivity.this,"Google Places Api is temporarily disabled",Toast.LENGTH_LONG).show();
+                Toast.makeText(PickupActivity.this,"Drag Marker to drop Location",Toast.LENGTH_LONG).show();
                 droppin.setVisibility(View.VISIBLE);
                 mMap.setOnCameraIdleListener(this);
                 break;

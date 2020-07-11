@@ -57,9 +57,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.rl_notificationitem_layout:
-                    notificationlayout.setClickable(false);
+                    //notificationlayout.setClickable(false);
                     if(context instanceof NotificationActivity && !readCalled) {
-                        setReadCalled(true);
+                        //setReadCalled(true);
+                        readCalled = true;
                         readPos = getAdapterPosition();
                         ((NotificationActivity) context).readNotificationApiCall(notificationlist.get(getAdapterPosition()).getNotifiactionid());
                     }
@@ -175,11 +176,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public void setReadCalled(boolean t){
-        readCalled = t;
-        if(readPos!=-1){
+        readCalled = false;
+        if(readPos!=-1&&t){
             notificationlist.remove(readPos);
             notifyItemRemoved(readPos);
             readPos =-1;
         }
+
     }
 }

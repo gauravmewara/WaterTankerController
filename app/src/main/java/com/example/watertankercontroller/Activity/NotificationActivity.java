@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.StringRequest;
 import com.example.watertankercontroller.Adapter.NotificationAdapter;
 import com.example.watertankercontroller.Modal.BookingModal;
 import com.example.watertankercontroller.Modal.NotificationModal;
@@ -350,13 +351,14 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
     public void readNotificationApiCall(String notificationId){
         try {
             GETAPIRequest getapiRequest = new GETAPIRequest();
-            String url = URLs.BASE_URL + URLs.READ_NOTIFICATION+"?id="+notificationId;
+            String url = URLs.BASE_URL + URLs.READ_NOTIFICATION+notificationId;
             String token = SessionManagement.getUserToken(this);
-            Log.i("Token:",token);
+            Log.i("Url:",url);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(NotificationActivity.this,readListener,url,headparam);
+            getapiRequest.requestString(NotificationActivity.this,readListener,url,headparam);
         } catch (Exception e) {
             e.printStackTrace();
+            adapter.setReadCalled(false);
         }
     }
     FetchDataListener readListener = new FetchDataListener() {
@@ -365,17 +367,23 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
             try {
                 if (data != null) {
                     if (data.getInt("error") == 0) {
-                        adapter.setReadCalled(false);
+                        adapter.setReadCalled(true);
+                        int count = Integer.parseInt(notiCount.getText().toString())-1;
+                        notiCount.setText(String.valueOf(count));
+                        SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,String.valueOf(count));
+
+                        //reloadNotification();
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                adapter.setReadCalled(false);
             }
         }
 
         @Override
         public void onFetchFailure(String msg) {
-
+            adapter.setReadCalled(false);
         }
 
         @Override

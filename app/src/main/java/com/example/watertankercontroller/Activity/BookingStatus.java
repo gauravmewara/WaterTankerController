@@ -106,7 +106,7 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
             }
         });
         name.setText(SessionManagement.getName(BookingStatus.this));
-        location.setText(SessionManagement.getLocation(BookingStatus.this));
+        location.setText(SessionManagement.getPhoneNo(BookingStatus.this));
         int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
         if(noticount<=0){
             clearNotificationCount();
