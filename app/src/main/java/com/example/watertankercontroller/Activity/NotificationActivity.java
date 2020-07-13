@@ -367,12 +367,11 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
             try {
                 if (data != null) {
                     if (data.getInt("error") == 0) {
-                        adapter.setReadCalled(true);
                         int count = Integer.parseInt(notiCount.getText().toString())-1;
                         notiCount.setText(String.valueOf(count));
                         SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,String.valueOf(count));
-
                         //reloadNotification();
+                        adapter.setReadCalled(true);
                     }
                 }
             } catch (JSONException e) {

@@ -86,7 +86,7 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
         notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
         context = this;
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fg_booking_map);
-        if(init_type.equals(Constants.COMPLETED_CALL)){
+        /*if(init_type.equals(Constants.COMPLETED_CALL)){
             pagetitle.setText("Completed Booking Details");
         }else if(init_type.equals(Constants.ABORTED_CALL)){
             pagetitle.setText("Aborted Booking Details");
@@ -94,7 +94,9 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
             pagetitle.setText("Pending Booking Details");
         }else{
             pagetitle.setText("Ongoing Booking Details");
-        }
+        }*/
+
+        pagetitle.setText("Booking Details");
 
 
 

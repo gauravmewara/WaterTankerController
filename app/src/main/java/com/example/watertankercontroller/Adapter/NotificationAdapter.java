@@ -1,6 +1,7 @@
 package com.example.watertankercontroller.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.watertankercontroller.Activity.BookingDetails;
 import com.example.watertankercontroller.Activity.NotificationActivity;
 import com.example.watertankercontroller.Modal.NotificationModal;
 import com.example.watertankercontroller.R;
+import com.example.watertankercontroller.Utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,10 +181,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void setReadCalled(boolean t){
         readCalled = false;
         if(readPos!=-1&&t){
+            Intent intent = new Intent(context,BookingDetails.class);
+            intent.putExtra("init_type", Constants.NOTIFICATION_CALL);
+            intent.putExtra("booking_id",notificationlist.get(readPos).getBookingid());
             notificationlist.remove(readPos);
             notifyItemRemoved(readPos);
             readPos =-1;
+            context.startActivity(intent);
         }
+
 
     }
 }

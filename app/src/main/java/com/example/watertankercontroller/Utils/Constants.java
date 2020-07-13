@@ -5,6 +5,7 @@ public class Constants {
     public static final String PENDING_CALL="Pending";
     public static final String COMPLETED_CALL="Completed";
     public static final String ABORTED_CALL="Aborted";
+    public static final String NOTIFICATION_CALL="Notification";
 
     public static final String COMPLETED_PAGE_TITLE="Completed Booking Status";
     public static final String PENDING_PAGE_TITLE="Pending Booking Status";
