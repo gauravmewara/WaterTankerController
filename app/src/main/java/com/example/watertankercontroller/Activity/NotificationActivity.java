@@ -5,6 +5,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -51,6 +52,7 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
     RelativeLayout menuback;
     TextView pagetitle,nodata;
     ProgressBar notificationprogress;
+    SwipeRefreshLayout refreshLayout;
 
     RelativeLayout toolbar_notification,noticountlayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -107,6 +109,22 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
 
         adapter = new NotificationAdapter(NotificationActivity.this);
         mLayoutManager = new LinearLayoutManager(this);
+        refreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipeRefresh_notification_list);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                /* refreshLayout.setRefreshing(false);*/
+                notificationlistview.clearOnScrollListeners();
+
+                adapter.clear();
+                createNotificationData();
+            }
+        });
+        refreshLayout.setColorSchemeColors (getResources().getColor(R.color.colorPrimary),
+                getResources().getColor(android.R.color.holo_green_dark),
+                getResources().getColor(android.R.color.holo_orange_dark),
+                getResources().getColor(android.R.color.holo_blue_dark));
+
         notificationlistview.setLayoutManager(mLayoutManager);
         notificationlistview.setItemAnimator(new DefaultItemAnimator());
         notificationlistview.setAdapter(adapter);
@@ -208,6 +226,7 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
         public void onFetchComplete(JSONObject response) {
             try {
                 if (response != null) {
+                    refreshLayout.setRefreshing(false);
                     if (response.getInt("error")==0) {
                         ArrayList<NotificationModal> tmodalList=new ArrayList<>();
                         JSONArray array = response.getJSONArray("data");

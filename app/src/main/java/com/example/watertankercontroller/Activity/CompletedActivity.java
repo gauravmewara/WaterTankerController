@@ -5,6 +5,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,6 +48,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
     TextView pagetitle,nodata;
     ProgressBar completedprogress;
     BookingListAdapter adapter;
+    SwipeRefreshLayout refreshLayout;
     RecyclerView completedlistview;
     private final int PAGE_START  = 1;
     private int TOTAL_PAGES = 1;
@@ -89,6 +91,23 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
 
         adapter = new BookingListAdapter(CompletedActivity.this,Constants.COMPLETED_CALL);
         mLayoutManager = new LinearLayoutManager(this);
+        refreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipeRefresh_completed_list);
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                refreshLayout.setRefreshing(false);
+                completedlistview.clearOnScrollListeners();
+
+                adapter.clear();
+                createBookingData();
+            }
+        });
+        refreshLayout.setColorSchemeColors (getResources().getColor(R.color.colorPrimary),
+                getResources().getColor(android.R.color.holo_green_dark),
+                getResources().getColor(android.R.color.holo_orange_dark),
+                getResources().getColor(android.R.color.holo_blue_dark));
+
         completedlistview.setLayoutManager(mLayoutManager);
         completedlistview.setItemAnimator(new DefaultItemAnimator());
         completedlistview.setAdapter(adapter);
@@ -181,6 +200,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
         public void onFetchComplete(JSONObject response) {
             try {
                 if (response != null) {
+                    refreshLayout.setRefreshing(false);
                     if (response.getInt("error")==0) {
                         ArrayList<BookingModal> tmodalList=new ArrayList<>();
                         JSONArray array = response.getJSONArray("data");
@@ -199,6 +219,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
                                     Log.i("Completed Booking", jsonObject.toString());
                                     BookingModal bmod = new BookingModal();
                                     bmod.setBookingid(jsonObject.getString("_id"));
+                                    bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
                                     bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                                     bmod.setMessage(jsonObject.getString("message"));
                                     bmod.setFromtime(jsonObject.getString("trip_start_at"));
@@ -296,6 +317,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
                                     Log.i("Completed Booking", jsonObject.toString());
                                     BookingModal bmod = new BookingModal();
                                     bmod.setBookingid(jsonObject.getString("_id"));
+                                    bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
                                     bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                                     bmod.setMessage(jsonObject.getString("message"));
                                     bmod.setFromtime(jsonObject.getString("trip_start_at"));

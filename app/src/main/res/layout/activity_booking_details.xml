@@ -10,17 +10,18 @@
         layout="@layout/wtc_toolbar2"
         android:id="@+id/include_bookingdetails"/>
     <ScrollView
+        android:id="@+id/sv_booking_details"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:fillViewport="true"
         android:background="@drawable/gradient_background_main"
         android:layout_below="@+id/include_bookingdetails"
         >
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/rl_bookingdetail_main"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:background="@color/White"
@@ -254,21 +255,23 @@
                 android:textSize="13dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
-                android:text=""/>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginTop="3dp"
-                android:visibility="gone"
-                android:id="@+id/rl_bookingdetail_map"
-                android:layout_below="@+id/tv_bookingdetail_message">
-                <fragment
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/fg_booking_map"
-                    android:name="com.google.android.gms.maps.SupportMapFragment"
-                    />
-            </RelativeLayout>
+                android:text=""
+                android:layout_marginBottom="5dp"/>
+
         </RelativeLayout>
     </ScrollView>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_marginTop="3dp"
+        android:visibility="visible"
+        android:id="@+id/rl_bookingdetail_map"
+        android:layout_below="@+id/sv_booking_details">
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fg_booking_map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            />
+    </RelativeLayout>
 </RelativeLayout>

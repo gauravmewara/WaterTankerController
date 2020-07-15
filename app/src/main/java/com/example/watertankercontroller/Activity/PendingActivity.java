@@ -5,6 +5,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,6 +48,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
     ProgressBar pendingprogress;
     BookingListAdapter adapter;
     RecyclerView pendinglistview;
+    SwipeRefreshLayout refreshLayout;
 
     RelativeLayout toolbar_notification,noticountlayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -88,6 +90,22 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
 
         adapter = new BookingListAdapter(PendingActivity.this,Constants.PENDING_CALL);
         mLayoutManager = new LinearLayoutManager(this);
+        refreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipeRefresh_pending_list);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                refreshLayout.setRefreshing(false);
+                pendinglistview.clearOnScrollListeners();
+
+                adapter.clear();
+                createBookingData();
+            }
+        });
+        refreshLayout.setColorSchemeColors (getResources().getColor(R.color.colorPrimary),
+                getResources().getColor(android.R.color.holo_green_dark),
+                getResources().getColor(android.R.color.holo_orange_dark),
+                getResources().getColor(android.R.color.holo_blue_dark));
+
         pendinglistview.setLayoutManager(mLayoutManager);
         pendinglistview.setItemAnimator(new DefaultItemAnimator());
         pendinglistview.setAdapter(adapter);
@@ -176,6 +194,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
         public void onFetchComplete(JSONObject response) {
             try {
                 if (response != null) {
+                    refreshLayout.setRefreshing(false);
                     if (response.getInt("error")==0) {
                         ArrayList<BookingModal> tmodalList=new ArrayList<>();
                         JSONArray array = response.getJSONArray("data");
@@ -194,6 +213,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                                     Log.i("Pending Booking", jsonObject.toString());
                                     BookingModal bmod = new BookingModal();
                                     bmod.setBookingid(jsonObject.getString("_id"));
+                                    bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
                                     bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                                     bmod.setFromtime("Trip not yet started");
                                     bmod.setTotime("Trip not yet started");
@@ -293,6 +313,7 @@ public class PendingActivity extends AppCompatActivity implements View.OnClickLi
                                 Log.i("Pending Booking", jsonObject.toString());
                                 BookingModal bmod = new BookingModal();
                                 bmod.setBookingid(jsonObject.getString("_id"));
+                                bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
                                 bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                                 bmod.setFromtime("Trip not yet started");
                                 bmod.setTotime("Trip not yet started");

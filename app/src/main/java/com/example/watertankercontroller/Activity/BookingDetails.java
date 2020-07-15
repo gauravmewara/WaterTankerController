@@ -172,7 +172,8 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                         if(jsonObject!=null) {
                             bmod = new BookingModal();
                             bmod.setBookingid(jsonObject.getString("_id"));
-                            bookingid.setText(bmod.getBookingid());
+                            bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
+                            bookingid.setText(bmod.getControllerBooking_id());
                             bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                             bmod.setMessage(jsonObject.getString("message"));
                             message.setText(bmod.getMessage());
@@ -205,7 +206,8 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             if(jsonObject.has("snapped_path")){
                                 String snapstring = jsonObject.getString("snapped_path");
                                 JSONObject snap = new JSONObject(snapstring);
-                                JSONArray snaparray = snap.getJSONArray("snappedpoints");
+                               // JSONArray snaparray = snap.getJSONArray("snappedpoints");
+                                JSONArray snaparray = snap.getJSONArray("snappedPoints");
                                 if(finalpath == null)
                                     finalpath = new ArrayList<>();
                                 for(int i=0;i<snaparray.length();i++){

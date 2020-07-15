@@ -209,7 +209,8 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     mVH.ongoingaction.setVisibility(View.GONE);
                     mVH.bookingview.setVisibility(View.VISIBLE);
                 }
-                mVH.bookingid.setText(bookinglist.get(position).getBookingid());
+               // mVH.bookingid.setText(bookinglist.get(position).getBookingid());
+                mVH.bookingid.setText(bookinglist.get(position).getControllerBooking_id());
                 mVH.distance.setText(bookinglist.get(position).getDistance());
                 mVH.fromtime.setText(bookinglist.get(position).getFromtime());
                 mVH.totime.setText(bookinglist.get(position).getTotime());

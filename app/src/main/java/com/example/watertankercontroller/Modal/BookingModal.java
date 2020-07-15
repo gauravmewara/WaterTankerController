@@ -7,6 +7,12 @@ public class BookingModal implements Parcelable {
     String bookingid,distance,fromlocation,tolocation,fromtime,totime;
     String fromlatitude,fromlongitude,tolatitude,tolongitude,bookingtype;
     String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name;
+    String controllerBooking_id;
+
+
+
+
+
 
 
     public BookingModal(){}
@@ -162,6 +168,10 @@ public class BookingModal implements Parcelable {
     public void setTotime(String totime) {
         this.totime = totime;
     }
+
+    public String getControllerBooking_id() { return controllerBooking_id; }
+    public void setControllerBooking_id(String controllerBooking_id) { this.controllerBooking_id = controllerBooking_id; }
+
 
     @Override
     public int describeContents() {

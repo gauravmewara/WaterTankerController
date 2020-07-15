@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchDataListener;
@@ -23,6 +26,9 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     ConstraintLayout signin;
     EditText username,pwd;
+    RelativeLayout rl_progressbar;
+    String usernamestring, password;
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +37,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         signin.setOnClickListener(this);
         username = (EditText)findViewById(R.id.et_login_username);
         pwd = (EditText)findViewById(R.id.et_login_pwd);
+        rl_progressbar=(RelativeLayout)findViewById(R.id.rl_progress);
+        progressBar=(ProgressBar)findViewById(R.id.progress_login);
     }
 
     @Override
@@ -39,13 +47,40 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()){
             case R.id.cl_login_loginbtn:
                 signin.setClickable(false);
-                loginApiCall();
-                /*Intent i = new Intent(LoginActivity.this, BookingStatus.class);
-                startActivity(i);
-                finish();*/
+                progressBar.setVisibility(View.VISIBLE);
+                if (validate()){
+                    loginApiCall();
+                }
                 break;
         }
     }
+
+    private boolean validate(){
+        usernamestring = username.getText().toString();
+        password = pwd.getText().toString();
+        if (username.getText().toString().equals("")) {
+            progressBar.setVisibility(View.GONE);
+            RequestQueueService.showAlert("Enter Username",LoginActivity.this);
+            signin.setClickable(true);
+            return false;
+
+        }
+        if (pwd.getText().toString().equals("")) {
+            progressBar.setVisibility(View.GONE);
+            RequestQueueService.showAlert("Enter Password",LoginActivity.this);
+            signin.setClickable(true);
+            return false;
+        }
+        if (pwd.getText().toString().length()<8){
+            progressBar.setVisibility(View.GONE);
+            RequestQueueService.showAlert("Password should be of atleast 8 letters long ",LoginActivity.this);
+            signin.setClickable(true);
+            return false;
+        }
+
+        return true;
+    }
+
 
     private void loginApiCall(){
         JSONObject jsonBodyObj = new JSONObject();
@@ -87,19 +122,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     userdetail.getJSONObject("settings").getString("language"),
                                     userdetail.getString("location"),userdetail.getString("notification_count"));
                             Intent i = new Intent(LoginActivity.this, BookingStatus.class);
+                            progressBar.setVisibility(View.GONE);
+                            signin.setClickable(true);
+
                             startActivity(i);
                             finish();
                         }
                         else {
                             RequestQueueService.showAlert("Error! No data fetched", LoginActivity.this);
+                            progressBar.setVisibility(View.GONE);
                             signin.setClickable(true);
+
                         }
                     }
                 } else {
                     RequestQueueService.showAlert("Error! No data fetched", LoginActivity.this);
-                    signin.setClickable(true);}
+                    progressBar.setVisibility(View.GONE);
+                    signin.setClickable(true);
+                    }
             }catch (Exception e){
                 RequestQueueService.showAlert("Something went wrong", LoginActivity.this);
+                progressBar.setVisibility(View.GONE);
                 signin.setClickable(true);
                 e.printStackTrace();
             }
@@ -109,6 +152,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         public void onFetchFailure(String msg) {
             //RequestQueueService.cancelProgressDialog();
             RequestQueueService.showAlert(msg,LoginActivity.this);
+            progressBar.setVisibility(View.GONE);
             signin.setClickable(true);
         }
 

@@ -5,6 +5,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,6 +48,7 @@ public class AbortedActivity extends AppCompatActivity implements View.OnClickLi
     ProgressBar abortedprogress;
     BookingListAdapter adapter;
     RecyclerView abortedlistview;
+    SwipeRefreshLayout refreshLayout;
 
     RelativeLayout toolbar_notification,noticountlayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -88,6 +90,23 @@ public class AbortedActivity extends AppCompatActivity implements View.OnClickLi
 
         adapter = new BookingListAdapter(AbortedActivity.this,Constants.ABORTED_CALL);
         mLayoutManager = new LinearLayoutManager(this);
+        refreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipeRefresh_abortedlist);
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+//                refreshLayout.setRefreshing(false);
+                abortedlistview.clearOnScrollListeners();
+
+                adapter.clear();
+                createBookingData();
+            }
+        });
+        refreshLayout.setColorSchemeColors (getResources().getColor(R.color.colorPrimary),
+                getResources().getColor(android.R.color.holo_green_dark),
+                getResources().getColor(android.R.color.holo_orange_dark),
+                getResources().getColor(android.R.color.holo_blue_dark));
+
         abortedlistview.setLayoutManager(mLayoutManager);
         abortedlistview.setItemAnimator(new DefaultItemAnimator());
         abortedlistview.setAdapter(adapter);
@@ -177,6 +196,7 @@ public class AbortedActivity extends AppCompatActivity implements View.OnClickLi
         public void onFetchComplete(JSONObject response) {
             try {
                 if (response != null) {
+                    refreshLayout.setRefreshing(false);
                     if (response.getInt("error")==0) {
                         ArrayList<BookingModal> tmodalList=new ArrayList<>();
                         JSONArray array = response.getJSONArray("data");
@@ -195,6 +215,7 @@ public class AbortedActivity extends AppCompatActivity implements View.OnClickLi
                                     Log.i("Aborted Booking", jsonObject.toString());
                                     BookingModal bmod = new BookingModal();
                                     bmod.setBookingid(jsonObject.getString("_id"));
+                                    bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
                                     bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                                     bmod.setFromtime(jsonObject.getString("trip_start_at"));
                                     bmod.setTotime(jsonObject.getString("trip_end_at"));
@@ -295,6 +316,7 @@ public class AbortedActivity extends AppCompatActivity implements View.OnClickLi
                                 Log.i("Aborted Booking", jsonObject.toString());
                                 BookingModal bmod = new BookingModal();
                                 bmod.setBookingid(jsonObject.getString("_id"));
+                                bmod.setControllerBooking_id(jsonObject.getString("booking_id"));
                                 bmod.setPhonecode(jsonObject.getString("phone_country_code"));
                                 bmod.setFromtime(jsonObject.getString("trip_start_at"));
                                 bmod.setTotime(jsonObject.getString("trip_end_at"));
