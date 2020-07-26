@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/LightGray"
     tools:context=".Activity.LoginActivity">
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,6 +87,8 @@
                     app:layout_constraintEnd_toEndOf="@+id/tv_login_username_title"
                     app:layout_constraintTop_toBottomOf="@id/rl_login_username_icon"
                     android:paddingLeft="33dp"
+                    android:imeOptions="actionNext"
+                    android:maxLines="1"
                     android:layout_marginTop="10dp"/>
 
 
@@ -133,6 +134,8 @@
                     app:layout_constraintEnd_toEndOf="@+id/tv_login_pwd_title"
                     app:layout_constraintTop_toBottomOf="@id/rl_login_pwd_icon"
                     android:paddingLeft="33dp"
+                    android:imeOptions="actionDone"
+                    android:maxLines="1"
                     android:layout_marginTop="10dp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
