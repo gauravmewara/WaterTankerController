@@ -142,9 +142,6 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
             case R.id.rl_nav_logout:
                 logout.setClickable(false);
                 logoutApiCalling();
-                /*intent = new Intent(BookingStatus.this,LoginActivity.class);
-                startActivity(intent);
-                finish();*/
                 break;
             case R.id.rl_bookingstatus_completed:
                 completedbooking.setClickable(false);
