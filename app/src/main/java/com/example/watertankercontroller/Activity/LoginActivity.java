@@ -4,9 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchDataListener;
@@ -23,14 +27,28 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     ConstraintLayout signin;
     EditText username,pwd;
+    RelativeLayout rl_eye;
+    ImageView iv_eye;
+    boolean pwd_visibility;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         signin = (ConstraintLayout)findViewById(R.id.cl_login_loginbtn);
         signin.setOnClickListener(this);
+        rl_eye = (RelativeLayout)findViewById(R.id.rl_login_showpwwd);
+        iv_eye = (ImageView)findViewById(R.id.iv_login_eye);
+        rl_eye.setOnClickListener(this);
         username = (EditText)findViewById(R.id.et_login_username);
         pwd = (EditText)findViewById(R.id.et_login_pwd);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        pwd_visibility = false;
+        pwd.setTransformationMethod(new PasswordTransformationMethod());
+        iv_eye.setImageResource(R.drawable.ic_eye);
     }
 
     @Override
@@ -44,6 +62,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(i);
                 finish();*/
                 break;
+            case R.id.rl_login_showpwwd:
+                rl_eye.setClickable(false);
+                pwd_visibility = !pwd_visibility;
+                if(pwd_visibility) {
+                    pwd.setTransformationMethod(null);
+                    iv_eye.setImageResource(R.drawable.ic_hidden);
+                }
+                else {
+                    pwd.setTransformationMethod(new PasswordTransformationMethod());
+                    iv_eye.setImageResource(R.drawable.ic_eye);
+                }
+                rl_eye.setClickable(true);
+                break;
         }
     }
 
@@ -54,6 +85,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             jsonBodyObj.put("password", pwd.getText().toString().trim());
             jsonBodyObj.put("device_type", "a");
             String token = FirebaseInstanceId.getInstance().getToken();
+            Log.d("FCM_TOKEN",token);
             jsonBodyObj.put("device_token", token);
             POSTAPIRequest postapiRequest=new POSTAPIRequest();
             String url = URLs.BASE_URL+URLs.SIGN_IN_URL;
@@ -75,7 +107,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             try {
                 if (data != null) {
                     if (data.getInt("error")==0) {
-                        Log.i("Login", "Login Successfull");
+                        Log.i("Login Successfull", data.toString());
                         JSONObject userdetail = data.getJSONObject("data");
                         if(userdetail!=null) {
                             SessionManagement.createLoginSession(LoginActivity.this,

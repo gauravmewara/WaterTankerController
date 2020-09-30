@@ -29,11 +29,12 @@
         android:text="loremdfhsjfsfskjvsvnjdnvsdjkfjsklfjs"
         android:textSize="11dp"
         android:textColor="@color/Black"/>
-    <!--<View
+    <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:id="@+id/notificationitem_divider"
-        android:background="@color/DarkGray"
         android:layout_below="@+id/tv_notificationitem_data"
-        android:layout_marginTop="8dp"/>-->
+        android:layout_alignLeft="@+id/tv_notificationitem_heading"
+        android:layout_alignRight="@+id/tv_notificationitem_data"
+        android:layout_marginTop="10dp"
+        android:background="@color/LightGray"/>
 </RelativeLayout>

@@ -16,7 +16,6 @@ public class SessionManagement {
     private static final String SHARED_NOTIFICATION_COUNT_KEY = "notification_count";
 
 
-
     public static boolean checkSignIn(Context con){
         if(SharedPrefUtil.hasKey(con,Constants.SHARED_PREF_LOGIN_TAG,IS_LOGGEDIN)){
             return SharedPrefUtil.getBooleanPreferences(con,Constants.SHARED_PREF_LOGIN_TAG,IS_LOGGEDIN);
@@ -80,5 +79,8 @@ public class SessionManagement {
     }
     public static String getNotificationCount(Context con){
         return SharedPrefUtil.getStringPreferences(con,Constants.SHARED_PREF_NOTICATION_TAG,SHARED_NOTIFICATION_COUNT_KEY);
+    }
+    public static void setNotificationCount(Context con, String count) {
+        SharedPrefUtil.setPreferences(con, Constants.SHARED_PREF_NOTICATION_TAG, Constants.SHARED_NOTIFICATION_COUNT_KEY, count);
     }
 }

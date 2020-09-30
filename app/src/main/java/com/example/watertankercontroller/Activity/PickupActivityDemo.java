@@ -85,7 +85,7 @@ public class PickupActivityDemo extends AppCompatActivity implements View.OnClic
         markerlist = new ArrayList<>();
         menuback = (ImageView)findViewById(R.id.iv_toolbar2_menu);
         menuback.setOnClickListener(this);
-        menunotification = (ImageView)findViewById(R.id.iv_toolabar2_notification);
+
         menunotification.setOnClickListener(this);
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.MAP_PAGE_TITLE);
@@ -114,10 +114,6 @@ public class PickupActivityDemo extends AppCompatActivity implements View.OnClic
         switch (view.getId()){
             case R.id.iv_toolbar2_menu:
                 onBackPressed();
-                break;
-            case R.id.iv_toolabar2_notification:
-                intent = new Intent(PickupActivityDemo.this,NotificationActivity.class);
-                startActivity(intent);
                 break;
             case R.id.rl_pickup_view:
                 intent = new Intent(PickupActivityDemo.this,PickUpLocations.class);

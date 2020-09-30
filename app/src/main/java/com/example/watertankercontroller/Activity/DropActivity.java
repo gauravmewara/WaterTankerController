@@ -95,10 +95,7 @@ public class DropActivity extends AppCompatActivity implements View.OnClickListe
         menuback.setOnClickListener(this);
 
 
-        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
-        toolbar_notification.setOnClickListener(this);
-        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
-        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
+
 
 
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
@@ -130,10 +127,7 @@ public class DropActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
-            case R.id.rl_toolbar2_notification_view:
-                intent = new Intent(DropActivity.this,NotificationActivity.class);
-                startActivity(intent);
-                break;
+
             case R.id.rl_dropactivity_drop_view:
                 Toast.makeText(DropActivity.this,"Google Places Api is temporarily disabled",Toast.LENGTH_LONG).show();
                 //intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,fields).build(DropActivity.this);

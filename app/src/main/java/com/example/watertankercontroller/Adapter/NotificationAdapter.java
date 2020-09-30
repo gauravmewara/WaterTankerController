@@ -2,7 +2,6 @@ package com.example.watertankercontroller.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.watertankercontroller.Activity.BookingDetails;
@@ -104,10 +102,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 final NotificationViewHolder mVH = (NotificationViewHolder) holder;
                 mVH.notificationheading.setText(notificationlist.get(position).getTitle());
                 mVH.notificationmsg.setText(notificationlist.get(position).getText());
-                if(notificationlist.get(position).getIsread().equals("0"))
+                /*if(notificationlist.get(position).getIsread().equals("0"))
                     mVH.notificationlayout.setBackground(context.getDrawable(R.drawable.notification_read_background));
                 else
-                    mVH.notificationlayout.setBackground(context.getDrawable(R.drawable.notification_unread_background));
+                    mVH.notificationlayout.setBackground(context.getDrawable(R.drawable.notification_unread_background));*/
             break;
             case LOADING:
                 break;
@@ -181,7 +179,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void setReadCalled(boolean t){
         readCalled = false;
         if(readPos!=-1&&t){
-            Intent intent = new Intent(context,BookingDetails.class);
+            Intent intent = new Intent(context, BookingDetails.class);
             intent.putExtra("init_type", Constants.NOTIFICATION_CALL);
             intent.putExtra("booking_id",notificationlist.get(readPos).getBookingid());
             notificationlist.remove(readPos);
@@ -189,7 +187,5 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             readPos =-1;
             context.startActivity(intent);
         }
-
-
     }
 }

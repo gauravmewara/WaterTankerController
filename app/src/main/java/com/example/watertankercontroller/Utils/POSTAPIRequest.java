@@ -7,6 +7,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
@@ -49,12 +50,14 @@ public class POSTAPIRequest {
                 VolleyLog.e("Error: ", error.getMessage());
                 if (error instanceof NoConnectionError) {
                     listener.onFetchFailure("Network Connectivity Problem");
+                }else if(error instanceof TimeoutError){
+                    listener.onFetchFailure("Request Timed Out");
                 } else if (error.networkResponse != null && error.networkResponse.data != null) {
                     VolleyError volley_error = new VolleyError(new String(error.networkResponse.data));
                     String errorMessage = "";
                     try {
                         JSONObject errorJson = new JSONObject(volley_error.getMessage().toString());
-                        if (errorJson.has("error")) errorMessage = errorJson.getString("errorCode");
+                        if (errorJson.has("error")) errorMessage = errorJson.getString("message");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -115,12 +118,14 @@ public class POSTAPIRequest {
                 VolleyLog.e("Error: ", error.getMessage());
                 if (error instanceof NoConnectionError) {
                     listener.onFetchFailure("Network Connectivity Problem");
+                }else if(error instanceof TimeoutError){
+                    listener.onFetchFailure("Request Timed Out");
                 } else if (error.networkResponse != null && error.networkResponse.data != null) {
                     VolleyError volley_error = new VolleyError(new String(error.networkResponse.data));
                     String errorMessage = "";
                     try {
                         JSONObject errorJson = new JSONObject(volley_error.getMessage().toString());
-                        if (errorJson.has("error")) errorMessage = errorJson.getString("errorCode");
+                        if (errorJson.has("error")) errorMessage = errorJson.getString("message");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -4,9 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class BookingModal implements Parcelable {
+    String id;
     String bookingid,distance,fromlocation,tolocation,fromtime,totime;
     String fromlatitude,fromlongitude,tolatitude,tolongitude,bookingtype;
-    String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name;
+    String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name,path;
 
 
     public BookingModal(){}
@@ -17,6 +18,14 @@ public class BookingModal implements Parcelable {
 
     public void setController_name(String controller_name) {
         this.controller_name = controller_name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getDrivername() {
@@ -163,6 +172,14 @@ public class BookingModal implements Parcelable {
         this.totime = totime;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -170,6 +187,7 @@ public class BookingModal implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
         parcel.writeString(bookingid);
         parcel.writeString(distance);
         parcel.writeString(fromlocation);
@@ -189,9 +207,11 @@ public class BookingModal implements Parcelable {
         parcel.writeString(message);
         parcel.writeString(drivername);
         parcel.writeString(controller_name);
+        parcel.writeString(path);
     }
 
     protected BookingModal(Parcel in){
+        id = in.readString();
         bookingid = in.readString();
         distance = in.readString();
         fromlocation = in.readString();
@@ -211,6 +231,7 @@ public class BookingModal implements Parcelable {
         message = in.readString();
         drivername = in.readString();
         controller_name = in.readString();
+        path = in.readString();
     }
 
     public static final Creator<BookingModal> CREATOR = new Creator<BookingModal>() {

@@ -66,7 +66,7 @@ public class TankerAdapter extends RecyclerView.Adapter<TankerAdapter.TankerView
             contractorname = (TextView)itemView.findViewById(R.id.tv_tankeritem_contractorname);
             tankermodel = (TextView)itemView.findViewById(R.id.tv_tankeritem_tankermodel);
             tankercapacity = (TextView)itemView.findViewById(R.id.tv_tankeritem_tankercapacity);
-            tankerimg = (ImageView)itemView.findViewById(R.id.iv_tankeritem_tanker);
+            //tankerimg = (ImageView)itemView.findViewById(R.id.iv_tankeritem_tanker);
             tankerstatus = (ImageView)itemView.findViewById(R.id.iv_tankeritem_tankeronline);
             tankeritem = (ConstraintLayout)itemView.findViewById(R.id.cl_tankeritem);
         }

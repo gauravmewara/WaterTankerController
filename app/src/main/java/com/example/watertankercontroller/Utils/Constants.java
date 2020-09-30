@@ -19,8 +19,10 @@ public class Constants {
 
     public static final int PICKUP_ACTIVITY_PICKUP_LOCATION_REQUEST_CODE=1011;
     public static final int BOOKINGFORM_ACTIVITY_MAP_ACTIVITY_REQUEST_CODE=1012;
+    public static final int PICKUP_ACTIVITY_LOC_REQUEST = 1013;
     public static final int MULTIPLE_PERMISSIONS_REQUEST_CODE = 1101;
     public static final int GOOGLE_AUTOCOMPLETE_REQUEST_CODE = 1201;
+
 
 
     public static final String PICKUP_LOCATION_INTENT_DATA_TITLE="pickuplocations";

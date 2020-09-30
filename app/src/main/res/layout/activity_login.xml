@@ -84,10 +84,11 @@
                     android:id="@+id/et_login_username"
                     android:hint="abcedefg.com"
                     app:layout_constraintStart_toStartOf="@+id/rl_login_username_icon"
-                    app:layout_constraintEnd_toEndOf="@+id/tv_login_username_title"
+                    app:layout_constraintEnd_toStartOf="@+id/rl_login_showpwwd"
                     app:layout_constraintTop_toBottomOf="@id/rl_login_username_icon"
                     android:paddingLeft="33dp"
                     android:imeOptions="actionNext"
+                    android:inputType="text"
                     android:maxLines="1"
                     android:layout_marginTop="10dp"/>
 
@@ -131,12 +132,27 @@
                     android:hint="Enter Password"
                     android:inputType="textPassword"
                     app:layout_constraintStart_toStartOf="@+id/rl_login_pwd_icon"
-                    app:layout_constraintEnd_toEndOf="@+id/tv_login_pwd_title"
+                    app:layout_constraintEnd_toStartOf="@+id/rl_login_showpwwd"
                     app:layout_constraintTop_toBottomOf="@id/rl_login_pwd_icon"
                     android:paddingLeft="33dp"
                     android:imeOptions="actionDone"
                     android:maxLines="1"
                     android:layout_marginTop="10dp" />
+                <RelativeLayout
+                    android:layout_width="35dp"
+                    android:layout_height="0dp"
+                    android:id="@+id/rl_login_showpwwd"
+                    app:layout_constraintTop_toTopOf="@+id/et_login_pwd"
+                    app:layout_constraintEnd_toEndOf="@+id/tv_login_username_title"
+                    app:layout_constraintBottom_toBottomOf="@+id/et_login_pwd">
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:id="@+id/iv_login_eye"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_eye"
+                    />
+                </RelativeLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

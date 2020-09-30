@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -91,14 +92,6 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
         menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
         context = this;
-
-
-        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
-        toolbar_notification.setOnClickListener(this);
-        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
-        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
-
-
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.NOTIFICATION_PAGE_TITLE);
 
@@ -139,26 +132,16 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
                 return isLoading;
             }
         });
-        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
-        if(noticount<=0){
-            clearNotificationCount();
-        }else{
-            notiCount.setText(String.valueOf(noticount));
-            noticountlayout.setVisibility(View.VISIBLE);
-        }
-
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
-                    String message = intent.getStringExtra("message");
-                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
-                    int count = Integer.parseInt(SessionManagement.getNotificationCount(NotificationActivity.this));
-                    setNotificationCount(count+1,false);
+                    reloadNotification();
                 }
             }
         };
-
+        NotificationManager nm = (NotificationManager)getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
+        nm.cancelAll();
         createNotificationData();
     }
 
@@ -328,7 +311,6 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
                         else isLastPage = true;
                     }
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -342,7 +324,6 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
 
         @Override
         public void onFetchStart() {
-
             //RequestQueueService.showProgressDialog(Login.this);
         }
 
@@ -350,15 +331,14 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
 
     public void readNotificationApiCall(String notificationId){
         try {
-            GETAPIRequest getapiRequest = new GETAPIRequest();
+            POSTAPIRequest getapiRequest = new POSTAPIRequest();
             String url = URLs.BASE_URL + URLs.READ_NOTIFICATION+notificationId;
             String token = SessionManagement.getUserToken(this);
-            Log.i("Url:",url);
+            Log.i("Token:",token);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.requestString(NotificationActivity.this,readListener,url,headparam);
+            getapiRequest.request(NotificationActivity.this,readListener,url,headparam);
         } catch (Exception e) {
             e.printStackTrace();
-            adapter.setReadCalled(false);
         }
     }
     FetchDataListener readListener = new FetchDataListener() {
@@ -367,8 +347,8 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
             try {
                 if (data != null) {
                     if (data.getInt("error") == 0) {
-                        int count = Integer.parseInt(notiCount.getText().toString())-1;
-                        notiCount.setText(String.valueOf(count));
+                        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY))-1;
+                        //notiCount.setText(String.valueOf(count));
                         SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,String.valueOf(count));
                         //reloadNotification();
                         adapter.setReadCalled(true);
@@ -391,8 +371,6 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
         }
     };
 
-
-
     public void reloadNotification(){
         if (SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes")) {
             NotificationUtilsFcm.clearNotifications(this);
@@ -404,72 +382,19 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
     }
 
 
-    public void setNotificationCount(int count,boolean isStarted){
-        notificationCount = SessionManagement.getNotificationCount(context);
-        if(Integer.parseInt(notificationCount)!=count) {
-            notificationCount = String.valueOf(count);
-            if (count <= 0) {
-                clearNotificationCount();
-            } else if (count < 100) {
-                notiCount.setText(String.valueOf(count));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
-            /*boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-            if(b2)
-                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");*/
-            reloadNotification();
-        }
-    }
-    public void clearNotificationCount(){
-        notiCount.setText("");
-        noticountlayout.setVisibility(View.GONE);
-    }
 
-    public void newNotification(){
-        Log.i("newNotification","Notification");
-        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        setNotificationCount(count+1,false);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // register new push message receiver
-        // by doing this, the activity will be notified each time a new message arrives
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(Config.PUSH_NOTIFICATION));
-        // clear the notification area when the app is opened
-        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        String viewcnt = notiCount.getText().toString();
-        int viewCount;
-        if(viewcnt.equals("")){
-            viewCount = 0;
-        }else{
-            viewCount = Integer.parseInt(viewcnt);
-        }
-        boolean b1 = sharedCount!=viewCount;
-        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-        if(b2){
-            newNotification();
-        }else if (b1){
-            if (sharedCount < 100 && sharedCount>0) {
-                notiCount.setText(String.valueOf(sharedCount));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 
 }

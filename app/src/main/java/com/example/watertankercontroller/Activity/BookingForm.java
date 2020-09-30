@@ -64,10 +64,6 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
         menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
 
-        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
-        toolbar_notification.setOnClickListener(this);
-        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
-        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
         context = this;
 
         messageLayout=(RelativeLayout)findViewById(R.id.cl_bookingform_message);
@@ -102,25 +98,7 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
             }
         });
 
-        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
-        if(noticount<=0){
-            clearNotificationCount();
-        }else{
-            notiCount.setText(String.valueOf(noticount));
-            noticountlayout.setVisibility(View.VISIBLE);
-        }
 
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
-                    String message = intent.getStringExtra("message");
-                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
-                    int count = Integer.parseInt(SessionManagement.getNotificationCount(BookingForm.this));
-                    setNotificationCount(count+1,false);
-                }
-            }
-        };
     }
 
     @Override
@@ -138,10 +116,7 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
                 InputMethodManager openkeyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 openkeyboard.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
                 break;
-            case R.id.rl_toolbar2_notification_view:
-                intent = new Intent(BookingForm.this,NotificationActivity.class);
-                startActivity(intent);
-                break;
+
             case R.id.cl_bookingform_pickup:
                 intent = new Intent(BookingForm.this,PickupActivity.class);
                 if(pickupselected)
@@ -274,65 +249,16 @@ public class BookingForm extends AppCompatActivity implements View.OnClickListen
     };
 
 
-    public void setNotificationCount(int count,boolean isStarted){
-        notificationCount = SessionManagement.getNotificationCount(context);
-        if(Integer.parseInt(notificationCount)!=count) {
-            notificationCount = String.valueOf(count);
-            if (count <= 0) {
-                clearNotificationCount();
-            } else if (count < 100) {
-                notiCount.setText(String.valueOf(count));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
-            boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-            if(b2)
-                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");
-        }
-    }
-    public void clearNotificationCount(){
-        notiCount.setText("");
-        noticountlayout.setVisibility(View.GONE);
-    }
 
-    public void newNotification(){
-        Log.i("newNotification","Notification");
-        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        setNotificationCount(count+1,false);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // register new push message receiver
-        // by doing this, the activity will be notified each time a new message arrives
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(Config.PUSH_NOTIFICATION));
-        // clear the notification area when the app is opened
-        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        int viewCount = Integer.parseInt(notiCount.getText().toString());
-        boolean b1 = sharedCount!=viewCount;
-        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-        if(b2){
-            newNotification();
-        }else if (b1){
-            if (sharedCount < 100 && sharedCount>0) {
-                notiCount.setText(String.valueOf(sharedCount));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
     }
 
 }

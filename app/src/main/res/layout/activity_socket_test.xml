@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activity.SocketTest">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rl_bookingstatus">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_bookingheading"
+            android:text="Booking Status:"
+            android:textColor="@color/Black"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location not Updating"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@+id/tv_bookingheading"
+            android:id="@+id/tv_bookingstatus"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rl_socket_connection"
+        android:layout_below="@+id/rl_bookingstatus"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_sock_con_heading"
+            android:text="Socket Connection:"
+            android:textColor="@color/Black"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Not Connected"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@+id/tv_sock_con_heading"
+            android:id="@+id/tv_sock_con"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/rl_socket_connection"
+        android:id="@+id/rl_sock_listener">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_sock_listen_heading"
+            android:text="Socket Listening:"
+            android:textColor="@color/Black"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="Location not Updating"
+            android:layout_toRightOf="@+id/tv_sock_listen_heading"
+            android:id="@+id/tv_sock_listen"/>
+    </RelativeLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:id="@+id/btn_reset_socket"
+        android:text="Reset Socket"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@+id/btn_chk_status"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btn_chk_status"
+        android:text="Check Status"/>
+
+</RelativeLayout>

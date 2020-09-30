@@ -22,47 +22,14 @@
                 android:src="@drawable/back_cbs"/>
         </RelativeLayout>
         <com.example.watertankercontroller.CustomViews.RobotoBoldTextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/tv_toolbar2_heading"
             android:layout_centerInParent="true"
             android:textColor="@color/Black"
             android:textSize="14sp"
             android:gravity="center"
-            android:layout_toLeftOf="@+id/rl_toolbar2_notification_view"
             android:layout_toRightOf="@+id/rl_toolbar2_menu"
-            android:text=""/>
-        <RelativeLayout
-            android:layout_width="47dp"
-            android:layout_height="40dp"
-            android:id="@+id/rl_toolbar2_notification_view"
-            android:layout_alignParentRight="true">
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:id="@+id/iv_toolabar2_notification"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/notification_bell"/>
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/rl_toolbar2_notificationcount"
-                android:visibility="gone"
-                android:background="@drawable/tanker_online_icon"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true">
-                <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/tv_toolbar2_notificationcount"
-                    android:layout_centerInParent="true"
-                    android:gravity="center"
-                    android:text=""
-                    android:textColor="@color/White"
-                    android:textSize="8dp"/>
-            </RelativeLayout>
-        </RelativeLayout>
+            android:text="jhjkljkjjlkjlkjlkkjlkj"/>
     </RelativeLayout>
 </androidx.appcompat.widget.Toolbar>

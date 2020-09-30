@@ -11,7 +11,8 @@
         android:id="@+id/include_bookingdetails"/>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scroll_booking_details"
         android:fillViewport="true"
         android:background="@drawable/gradient_background_main"
         android:layout_below="@+id/include_bookingdetails"
@@ -255,20 +256,48 @@
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
                 android:text=""/>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginTop="3dp"
-                android:visibility="gone"
-                android:id="@+id/rl_bookingdetail_map"
-                android:layout_below="@+id/tv_bookingdetail_message">
-                <fragment
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/fg_booking_map"
-                    android:name="com.google.android.gms.maps.SupportMapFragment"
-                    />
-            </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="@color/LightGray"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:id="@+id/rl_booking_details_showmap"
+        android:layout_below="@+id/scroll_booking_details">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_booking_details_showmap"
+            android:layout_marginLeft="15dp"
+            android:layout_alignParentLeft="true"
+            android:text="Show Map"
+            android:textSize="14dp"
+            android:layout_centerVertical="true"
+            android:textColor="@color/Black"/>
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_plus"
+            android:id="@+id/iv_booking_details_showmap"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="3dp"
+        android:visibility="gone"
+        android:id="@+id/rl_bookingdetail_map"
+        android:layout_below="@+id/rl_booking_details_showmap">
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="3dp"
+            android:id="@+id/fg_booking_map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            />
+    </RelativeLayout>
 </RelativeLayout>

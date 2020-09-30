@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WaterTankerController</string>
+    <string name="app_name">AE Controller</string>
     <string name="sign_in_btn_text">SIGN IN</string>
     <string name="login_username">User Name</string>
     <string name="login_password">Password</string>

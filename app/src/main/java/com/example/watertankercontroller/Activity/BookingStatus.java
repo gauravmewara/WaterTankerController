@@ -107,13 +107,6 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
         });
         name.setText(SessionManagement.getName(BookingStatus.this));
         location.setText(SessionManagement.getPhoneNo(BookingStatus.this));
-        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
-        if(noticount<=0){
-            clearNotificationCount();
-        }else{
-            notiCount.setText(String.valueOf(noticount));
-            noticountlayout.setVisibility(View.VISIBLE);
-        }
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -137,10 +130,12 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
         navdrawer.closeDrawers();
         switch(view.getId()){
             case R.id.rl_nav_bookingform:
+                bookingform.setClickable(false);
                 intent = new Intent(BookingStatus.this,BookingForm.class);
                 startActivity(intent);
                 break;
             case R.id.rl_nav_tankerdetails:
+                tankerdetail.setClickable(false);
                 intent = new Intent(BookingStatus.this,TankerDetails.class);
                 startActivity(intent);
                 break;
@@ -152,22 +147,27 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
                 finish();*/
                 break;
             case R.id.rl_bookingstatus_completed:
+                completedbooking.setClickable(false);
                 intent = new Intent(BookingStatus.this,CompletedActivity.class);
                 startActivity(intent);
                 break;
             case R.id.rl_bookingstatus_pending:
+                pendingbooking.setClickable(false);
                 intent = new Intent(BookingStatus.this,PendingActivity.class);
                 startActivity(intent);
                 break;
             case R.id.rl_bookingstatus_ongoing:
+                ongoingbooking.setClickable(false);
                 intent = new Intent(BookingStatus.this,OngoingActivity.class);
                 startActivity(intent);
                 break;
             case R.id.rl_bookingstatus_aborted:
+                abortedbooking.setClickable(false);
                 intent = new Intent(BookingStatus.this,AbortedActivity.class);
                 startActivity(intent);
                 break;
             case R.id.rl_toolbar_notification_view:
+                toolbar_notification.setClickable(false);
                 intent = new Intent(BookingStatus.this,NotificationActivity.class);
                 startActivity(intent);
                 break;
@@ -259,26 +259,49 @@ public class BookingStatus extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onResume() {
         super.onResume();
+        bookingform.setClickable(true);
+        ongoingbooking.setClickable(true);
+        pendingbooking.setClickable(true);
+        completedbooking.setClickable(true);
+        abortedbooking.setClickable(true);
+        tankerdetail.setClickable(true);
+        toolbar_notification.setClickable(true);
         // register new push message receiver
         // by doing this, the activity will be notified each time a new message arrives
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(Config.PUSH_NOTIFICATION));
         // clear the notification area when the app is opened
-        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,
-                Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        String viewcnt = notiCount.getText().toString();
-        int viewCount;
-        if(viewcnt.equals("")){
-            viewCount = 0;
+        String sc = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG, Constants.SHARED_NOTIFICATION_COUNT_KEY);
+        String vc = notiCount.getText().toString();
+        int sharedCount,viewCount;
+        if(sc.equals("")){
+            sharedCount=0;
         }else{
-            viewCount = Integer.parseInt(viewcnt);
+            sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,
+                    Constants.SHARED_PREF_NOTICATION_TAG, Constants.SHARED_NOTIFICATION_COUNT_KEY));
         }
-        boolean b1 = sharedCount!=viewCount;
-        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-        if(b2){
+        boolean b1;
+        if(vc.equals("")){
+            viewCount=0;
+            b1 = sharedCount != viewCount;
+        }else if(vc.equals("99+")) {
+            if (sharedCount > 99) {
+                b1 = false;
+            } else {
+                b1 = true;
+            }
+        }else{
+            viewCount = Integer.parseInt(vc);
+            b1 = sharedCount != viewCount;
+        }
+        boolean b2 = SharedPrefUtil.getStringPreferences(this, Constants.SHARED_PREF_NOTICATION_TAG, Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
+        if (b2) {
             newNotification();
-        }else if (b1){
-            if (sharedCount < 100 && sharedCount>0) {
+        } else if (b1) {
+            if(sharedCount<=0){
+                notiCount.setText("");
+                noticountlayout.setVisibility(View.GONE);
+            }else if (sharedCount < 100 && sharedCount > 0) {
                 notiCount.setText(String.valueOf(sharedCount));
                 noticountlayout.setVisibility(View.VISIBLE);
             } else {

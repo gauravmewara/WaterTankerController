@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.watertankercontroller.Activity.BookingDetails;
 import com.example.watertankercontroller.Activity.OngoingMapActivity;
 import com.example.watertankercontroller.Modal.BookingModal;
-import com.example.watertankercontroller.Modal.PickupPlaceModal;
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchDataListener;
@@ -35,11 +34,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     ArrayList<BookingModal> bookinglist;
@@ -103,6 +100,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 case R.id.rl_bookingitem_ongoing_view:
                     BookingModal blmod = bookinglist.get(getAdapterPosition());
                     intent = new Intent(context, OngoingMapActivity.class);
+                    //intent = new Intent(context, SocketTest.class);
                     intent.putExtra("Bookingdata",blmod);
                     context.startActivity(intent);
                     break;
@@ -117,7 +115,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         public void onClick(View view) {
                             abort_delete.setClickable(false);
                             removedPosition = getAdapterPosition();
-                            abortBooking(bookinglist.get(getAdapterPosition()).getBookingid());
+                            abortBooking(bookinglist.get(getAdapterPosition()).getId());
                         }
                     });
                     abort_cancel.setOnClickListener(new View.OnClickListener() {
@@ -140,7 +138,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             public void onClick(View view) {
                                 abort_delete.setClickable(false);
                                 removedPosition = getAdapterPosition();
-                                abortBooking(bookinglist.get(getAdapterPosition()).getBookingid());
+                                abortBooking(bookinglist.get(getAdapterPosition()).getId());
                             }
                         });
                         abort_cancel.setOnClickListener(new View.OnClickListener() {
@@ -154,14 +152,14 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }else{
                         intent = new Intent(context, BookingDetails.class);
                         intent.putExtra("init_type",init_type);
-                        intent.putExtra("booking_id",bookinglist.get(getAdapterPosition()).getBookingid());
+                        intent.putExtra("booking_id",bookinglist.get(getAdapterPosition()).getId());
                         context.startActivity(intent);
                     }
                     break;
                 case R.id.cl_bookingitem_itemview:
                     intent = new Intent(context, BookingDetails.class);
                     intent.putExtra("init_type",init_type);
-                    intent.putExtra("booking_id",bookinglist.get(getAdapterPosition()).getBookingid());
+                    intent.putExtra("booking_id",bookinglist.get(getAdapterPosition()).getId());
                     context.startActivity(intent);
                     break;
             }
@@ -223,7 +221,8 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemViewType(int position) {
-        return (position == bookinglist.size() - 1 && isLoadingAdded) ? LOADING : ITEM;
+        int x = (position == bookinglist.size() - 1 && isLoadingAdded) ? LOADING : ITEM;
+        return x;
     }
 
 

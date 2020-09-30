@@ -86,7 +86,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     TextView notiCount;
     static String notificationCount;
     static Context context;
-
     RelativeLayout pickupview,dropview,confirmview;
     ArrayList<PickupPlaceModal> pickupplacelist;
     TextView pickuplocation,pickupaddress,pagetitle,droplocation,dropaddress;
@@ -122,14 +121,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         markerlist = new ArrayList<>();
         menuback = (RelativeLayout) findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
-
-        toolbar_notification = (RelativeLayout) findViewById(R.id.rl_toolbar2_notification_view);
-        toolbar_notification.setOnClickListener(this);
-        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
-        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
         context = this;
-
-
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.MAP_PAGE_TITLE);
         pickupview = (RelativeLayout)findViewById(R.id.rl_pickup_view);
@@ -159,25 +151,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         }
         Places.initialize(getApplicationContext(),Constants.MAP_API_KEY);
         PlacesClient placesClient = Places.createClient(this);
-        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
-        if(noticount<=0){
-            clearNotificationCount();
-        }else{
-            notiCount.setText(String.valueOf(noticount));
-            noticountlayout.setVisibility(View.VISIBLE);
-        }
 
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
-                    String message = intent.getStringExtra("message");
-                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
-                    int count = Integer.parseInt(SessionManagement.getNotificationCount(PickupActivity.this));
-                    setNotificationCount(count+1,false);
-                }
-            }
-        };
         checkAndRequestPermissions(this,allpermissionsrequired);
     }
 
@@ -188,10 +162,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
-            case R.id.rl_toolbar2_notification_view:
-                intent = new Intent(PickupActivity.this,NotificationActivity.class);
-                startActivity(intent);
-                break;
+
             case R.id.rl_pickup_view:
                 intent = new Intent(PickupActivity.this,PickUpLocations.class);
                 intent.putParcelableArrayListExtra(Constants.PICKUP_LOCATION_INTENT_DATA_TITLE,pickupplacelist);
@@ -384,6 +355,9 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                 }else if(resultCode == RESULT_CANCELED){
                 }
                 break;
+            case Constants.PICKUP_ACTIVITY_LOC_REQUEST:
+                checkLocation();
+                break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -394,8 +368,17 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMarkerClickListener(this);
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            if(permissionGranted){
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (permissionGranted) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    mMap.setMyLocationEnabled(true);
+                    mMap.setTrafficEnabled(false);
+                    mMap.setIndoorEnabled(false);
+                    mMap.setBuildingsEnabled(true);
+                    mMap.getUiSettings().setZoomControlsEnabled(true);
+                }
+            } else {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 mMap.setMyLocationEnabled(true);
                 mMap.setTrafficEnabled(false);
@@ -403,13 +386,8 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                 mMap.setBuildingsEnabled(true);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
             }
-        }else{
-            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            mMap.setMyLocationEnabled(true);
-            mMap.setTrafficEnabled(false);
-            mMap.setIndoorEnabled(false);
-            mMap.setBuildingsEnabled(true);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
+        }catch (SecurityException e){
+            e.printStackTrace();
         }
         for (int i = 0; i < pickupplacelist.size(); i++) {
             LatLng place = new LatLng(Double.parseDouble(pickupplacelist.get(i).getLatitude()), Double.parseDouble(pickupplacelist.get(i).getLongitude()));
@@ -465,8 +443,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         }else{
             permissionGranted = true;
             checkLocation();
-            buildGoogleApiClient();
-            //createPickUpLocations();
         }
     }
 
@@ -485,8 +461,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     if(permissionGranted){
                         checkLocation();
-                        buildGoogleApiClient();
-                        //createPickUpLocations();
                     }else{
                         checkAndRequestPermissions(PickupActivity.this,allpermissionsrequired);
                     }
@@ -539,13 +513,16 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
-    private boolean checkLocation() {
-        if (!isLocationEnabled())
-            showAlert();
-        return isLocationEnabled();
+    private void checkLocation() {
+        boolean gpsenable=isLocationEnabled();
+        if(!gpsenable){
+            showLocationAlert();
+        }else{
+            buildGoogleApiClient();
+        }
     }
 
-    private void showAlert() {
+    private void showLocationAlert() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Enable Location")
                 .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
@@ -554,17 +531,20 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                         Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(myIntent);
+                        PickupActivity.this.startActivityForResult(myIntent,Constants.PICKUP_ACTIVITY_LOC_REQUEST);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-
+                        checkLocation();
                     }
                 });
         dialog.show();
     }
+
+
+
 
     @Override
     protected void onStart() {
@@ -589,7 +569,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
 
     private boolean isLocationEnabled() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) &&
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
@@ -603,7 +583,11 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         if (!permissionGranted) {
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }catch (SecurityException e){
+            e.printStackTrace();
+        }
         Log.d("reque", "--->>>>");
     }
 
@@ -693,64 +677,15 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     }
 
 
-    public void setNotificationCount(int count,boolean isStarted){
-        notificationCount = SessionManagement.getNotificationCount(context);
-        if(Integer.parseInt(notificationCount)!=count) {
-            notificationCount = String.valueOf(count);
-            if (count <= 0) {
-                clearNotificationCount();
-            } else if (count < 100) {
-                notiCount.setText(String.valueOf(count));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
-            boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-            if(b2)
-                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");
-        }
-    }
-    public void clearNotificationCount(){
-        notiCount.setText("");
-        noticountlayout.setVisibility(View.GONE);
-    }
 
-    public void newNotification(){
-        Log.i("newNotification","Notification");
-        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        setNotificationCount(count+1,false);
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // register new push message receiver
-        // by doing this, the activity will be notified each time a new message arrives
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(Config.PUSH_NOTIFICATION));
-        // clear the notification area when the app is opened
-        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        int viewCount = Integer.parseInt(notiCount.getText().toString());
-        boolean b1 = sharedCount!=viewCount;
-        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-        if(b2){
-            newNotification();
-        }else if (b1){
-            if (sharedCount < 100 && sharedCount>0) {
-                notiCount.setText(String.valueOf(sharedCount));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
     }
 }

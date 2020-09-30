@@ -1,11 +1,13 @@
 package com.example.watertankercontroller.Activity;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
@@ -18,6 +20,9 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -32,6 +37,7 @@ import com.example.watertankercontroller.Modal.BookingModal;
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchURL;
+import com.example.watertankercontroller.Utils.NetworkUtils;
 import com.example.watertankercontroller.Utils.PointsParser;
 import com.example.watertankercontroller.Utils.RequestQueueService;
 import com.example.watertankercontroller.Utils.SessionManagement;
@@ -62,13 +68,14 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import io.socket.client.Socket;
 import io.socket.client.IO;
 import io.socket.emitter.Emitter;
 
-public class OngoingMapActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback,TaskLoadedCallback {
+public class OngoingMapActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback{
     RelativeLayout menuback;
     RelativeLayout toolbar_notification,noticountlayout;
     BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -80,7 +87,7 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     SupportMapFragment mapFragment;
     static ArrayList<LatLng> waypoints = null;
     ArrayList<String> allpermissionsrequired;
-    boolean permissionGranted = false;
+    boolean permissionGranted = false,socketInitialized=false;
     private GoogleApiClient mGoogleApiClient;
     private LatLng pickupLatLng=null,dropLatLng=null;
     public  LatLng currentlatlng=null;
@@ -96,11 +103,12 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     String prevpath = "";
     boolean isLocationInProcess = false;
     boolean isMapReady = false;
-    BitmapDescriptor smallTankerIcon;
+    BitmapDescriptor smallTankerIcon,tank_icon;
     boolean pathCreated = false;
     ArrayList<LatLng> finalpath = null;
     boolean booking_end = false;
-
+    private BroadcastReceiver networkStateReceiver;
+    boolean networkstatechanged = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,10 +117,6 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         blmod = b.getParcelable("Bookingdata");
         menuback = (RelativeLayout)findViewById(R.id.rl_toolbar2_menu);
         menuback.setOnClickListener(this);
-        toolbar_notification = (RelativeLayout)findViewById(R.id.rl_toolbar2_notification_view);
-        toolbar_notification.setOnClickListener(this);
-        notiCount = (TextView)findViewById(R.id.tv_toolbar2_notificationcount);
-        noticountlayout = (RelativeLayout)findViewById(R.id.rl_toolbar2_notificationcount);
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         pagetitle.setText(Constants.MAP_PAGE_TITLE);
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.fg_ongoingMap_map);
@@ -131,118 +135,108 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
         allpermissionsrequired = new ArrayList<>();
         allpermissionsrequired.add(Manifest.permission.ACCESS_FINE_LOCATION);
         allpermissionsrequired.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        int noticount = Integer.parseInt(SessionManagement.getNotificationCount(this));
-        if(noticount<=0){
-            clearNotificationCount();
-        }else{
-            notiCount.setText(String.valueOf(noticount));
-            noticountlayout.setVisibility(View.VISIBLE);
-        }
-
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+        networkStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
-                    String message = intent.getStringExtra("message");
-                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
-                    int count = Integer.parseInt(SessionManagement.getNotificationCount(OngoingMapActivity.this));
-                    setNotificationCount(count+1,false);
+                Log.i("Broadcast:","Network State");
+                networkstatechanged = true;
+                int status = NetworkUtils.getConnectivityStatus(getApplicationContext());
+                if(status==NetworkUtils.NETWORK_INTERNET||status==NetworkUtils.WIFI_INTERNET){
+                    Log.i("Network State:","Internet Available");
+                    resetSocket();
+                    networkstatechanged = false;
+                }else{
+                    Log.i("Network State:","No Internet");
                 }
             }
         };
         Bitmap bit = BitmapFactory.decodeResource(getResources(), R.drawable.tenklocation_map);
         Bitmap smallTanker = Bitmap.createScaledBitmap(bit, 70, 70, false);
-        smallTankerIcon = BitmapDescriptorFactory.fromBitmap(smallTanker);
-        initSocket();
+        tank_icon = bitmapDescriptorFromVector(this,R.drawable.ic_truck_icon);
         mapFragment.getMapAsync(OngoingMapActivity.this);
-        //checkAndRequestPermissions(this,allpermissionsrequired);
     }
 
-    public void initSocket(){
-        try{
-            mSocket = IO.socket(URLs.SOCKET_URL+SessionManagement.getUserToken(OngoingMapActivity.this));
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
+        Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_truck_icon);
+        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        //vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    public void initSocket(String id){
+        try {
+            mSocket = IO.socket(URLs.SOCKET_URL + SessionManagement.getUserToken(this));
+            mSocket.connect();
+            socketInitialized = true;
+            Log.i("SOCKET TEST:","socket Initialized");
+            mSocket.on("aborted:Booking", onBookingAborted);
+            mSocket.on("end:Booking",onBookingEnd);
+            mSocket.on("locationUpdate:Booking",onLocationUpdate);
+            JSONObject params = new JSONObject();
+            params.put("booking_id", id);
+            mSocket.emit("subscribe:Booking", params);
         }catch (URISyntaxException e){
             e.printStackTrace();
+            socketInitialized = false;
+        }catch (JSONException e){
+            e.printStackTrace();
+            socketInitialized = false;
         }
-        mSocket.on("locationUpdate:Booking",onLocationUpdate);
-        mSocket.on("aborted:Booking",onBookingAborted);
-        mSocket.on("end:Booking",onBookingEnd);
-        mSocket.connect();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        /*if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            if(permissionGranted){
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setMyLocationEnabled(false);
-                mMap.setTrafficEnabled(false);
-                mMap.setIndoorEnabled(false);
-                mMap.getUiSettings().setZoomControlsEnabled(true);
-            }
-        }else{
-            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            mMap.setMyLocationEnabled(false);
-            mMap.setTrafficEnabled(false);
-            mMap.setIndoorEnabled(false);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-        }*/
         pickupLatLng = new LatLng(Double.parseDouble(blmod.getFromlatitude()),Double.parseDouble(blmod.getFromlongitude()));
         dropLatLng = new LatLng(Double.parseDouble(blmod.getTolatitude()),Double.parseDouble(blmod.getTolongitude()));
-        MarkerOptions pickupop,dropop,currentop;
+        MarkerOptions pickupop,dropop;
         pickupop = new MarkerOptions()
                 .position(pickupLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.pickuppoint_create));
         dropop = new MarkerOptions()
                 .position(dropLatLng)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.droppoint_create));
-        /*currentop = new MarkerOptions()
-                .position(pickupLatLng)
-                .flat(true)
-                .alpha(.6f)
-                .anchor(0.5f,0.5f)
-                .rotation(90)
-                .icon(smallTankerIcon);*/
         pickupMarker = mMap.addMarker(pickupop);
         dropMarker = mMap.addMarker(dropop);
-        //currentMarker = mMap.addMarker(currentop);
-        JSONObject emitparam = new JSONObject();
-        JSONObject refreshParam = new JSONObject();
-        try {
-            emitparam.put("booking_id", blmod.getBookingid());
-            refreshParam.put("id", blmod.getBookingid());
-        }catch (JSONException e){
-            e.printStackTrace();
+        String pathstring = blmod.getPath();
+        if(pathstring!=null){
+            if(!pathstring.equals("")){
+                ArrayList<LatLng> path = (ArrayList<LatLng>)decodePoly(blmod.getPath());
+                PolylineOptions pathop = new PolylineOptions();
+                pathop.addAll(path);
+                pathop.width(20);
+                pathop.color(ContextCompat.getColor(OngoingMapActivity.this,R.color.Green2));
+                currentPolyline = mMap.addPolyline(pathop);
+            }
         }
-
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pickupLatLng, 17));
         isMapReady = true;
-        //new FetchURL(OngoingMapActivity.this).execute(getUrl(pickupLatLng, dropLatLng, "driving"), "driving");
-        mSocket.emit("subscribe:Booking",emitparam);
-        mSocket.emit("refreshLocation:Booking",refreshParam);
+        initSocket(blmod.getId());
     }
+
 
 
     private Emitter.Listener onLocationUpdate = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+            Log.i("Location Listener:","Location updating");
             OngoingMapActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     JSONObject response = (JSONObject)args[0];
                     try {
                         String id = response.getString("id");
-                        if(id.equals(blmod.getBookingid())) {
+                        Log.i("listener booking id:",id);
+                        if(id.equals(blmod.getId())) {
                             if (!isLocationInProcess) {
-                                //mSocket.off("locationUpdate:Booking", onLocationUpdate);
                                 isLocationInProcess = true;
                                 String lat = response.getString("lat");
                                 String lng = response.getString("lng");
-                                Float bearing = Float.parseFloat(response.getString("bearing"));
-                                String path = "";
-                                if (response.has("path"))
-                                    path = response.getString("path");
                                 currentlatlng = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
                                 if (currentMarker != null)
                                     currentMarker.remove();
@@ -250,19 +244,11 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                                         .position(currentlatlng)
                                         .flat(true)
                                         .alpha(.8f)
-                                        .anchor(0.5f, 0.5f)
-                                        .rotation(90 + bearing)
-                                        .icon(smallTankerIcon);
+                                        .anchor(0.5f, 0.0f)
+                                        .icon(tank_icon);
                                 currentMarker = mMap.addMarker(currentop);
-                                if (path != "" && !pathCreated) {
-                                    prevpath = path;
-                                    PointsParser parserTask = new PointsParser(OngoingMapActivity.this, directionMode);
-                                    parserTask.execute(path);
-                                } else {
-                                    //mSocket.on("locationUpdate:Booking", onLocationUpdate);
-                                    isLocationInProcess = false;
-                                }
-
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentlatlng, 22));
+                                isLocationInProcess = false;
                             }
                         }
                     }catch (JSONException e){
@@ -279,24 +265,24 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
     private Emitter.Listener onBookingAborted = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+            Log.i("Location Listener:","Location Aborted");
             OngoingMapActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     JSONObject response = (JSONObject)args[0];
                     try{
                         String id = response.getString("id");
-                        if(id.equals(blmod.getBookingid())) {
-                            mSocket.off("locationUpdate:Booking",onLocationUpdate);
-                            mSocket.off("aborted:Booking",onBookingAborted);
-                            mSocket.off("end:Booking",onBookingEnd);
-                            mSocket.disconnect();
-                            RequestQueueService.showAlert("","Booking Cancelled",OngoingMapActivity.this);
-                            booking_end = true;
+                        Log.i("listener booking id:",id);
+                        if(id.equals(blmod.getId())) {
+                            closeSocket();
+                            abortAlert("Booking Cancelled",OngoingMapActivity.this);
                         }
                     }catch (JSONException e){
                         e.printStackTrace();
+                        abortAlert("Booking Cancelled",OngoingMapActivity.this);
                     }catch (Exception e){
                         e.printStackTrace();
+                        abortAlert("Booking Cancelled",OngoingMapActivity.this);
                     }
                 }
             });
@@ -312,11 +298,9 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                     JSONObject response = (JSONObject)args[0];
                     try{
                         String id = response.getString("id");
-                        if(id.equals(blmod.getBookingid())) {
-                            mSocket.off("locationUpdate:Booking",onLocationUpdate);
-                            mSocket.off("aborted:Booking",onBookingAborted);
-                            mSocket.off("end:Booking",onBookingEnd);
-                            mSocket.disconnect();
+                        Log.i("listener booking id:",id);
+                        if(id.equals(blmod.getId())) {
+                            closeSocket();
                             JSONObject snap = response.getJSONObject("snapped_path");
                             String distance_travelled = response.getString("distance_travelled");
                             JSONArray snaparray = snap.getJSONArray("snapped_points");
@@ -336,83 +320,18 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
                             op.addAll(finalpath);
                             if(currentPolyline!=null)
                                 currentPolyline.remove();
-                            //int size = values.length;
                             currentPolyline = mMap.addPolyline(op);
-                            RequestQueueService.showAlert("","Trip finished",OngoingMapActivity.this);
-                            booking_end = true;
+                            abortAlert("Trip finished",OngoingMapActivity.this);
                         }
                     }catch (Exception e){
                         e.printStackTrace();
                         Toast.makeText(OngoingMapActivity.this,"Error In Location End Listener",Toast.LENGTH_LONG);
+                        abortAlert("Trip finished",OngoingMapActivity.this);
                     }
                 }
             });
         }
     };
-
-    @Override
-    public void onTaskDone(Object... values) {
-        if(currentPolyline!=null)
-            currentPolyline.remove();
-        //int size = values.length;
-        currentPolyline = mMap.addPolyline((PolylineOptions)values[0]);
-        distance = (long)values[1];
-        duration = (long)values[2];
-        mapRoute = (ArrayList<LatLng>) values[3];
-        pathCreated = true;
-        isLocationInProcess = false;
-        //mSocket.on("locationUpdate:Booking",onLocationUpdate);
-    }
-
-
-
-
-
-
-
-    /*public void checkAndRequestPermissions(Activity activity, ArrayList<String> permissions) {
-        ArrayList<String> listPermissionsNeeded = new ArrayList<>();
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                listPermissionsNeeded.add(permission);
-            }
-        }
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(activity, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), Constants.MULTIPLE_PERMISSIONS_REQUEST_CODE);
-        }else{
-            permissionGranted = true;
-            buildGoogleApiClient();
-            //createPickUpLocations();
-        }
-    }*/
-
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case Constants.MULTIPLE_PERMISSIONS_REQUEST_CODE:
-                if(grantResults.length>0){
-                    for(int i=0;i<grantResults.length;i++){
-                        permissionGranted = true;
-                        if(!(grantResults[i]==PackageManager.PERMISSION_GRANTED)){
-                            permissionGranted = false;
-                            break;
-                        }
-                    }
-                    if(permissionGranted){
-                        buildGoogleApiClient();
-                        //createPickUpLocations();
-                    }else{
-                        checkAndRequestPermissions(OngoingMapActivity.this,allpermissionsrequired);
-                    }
-                }
-                break;
-        }
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }*/
-
-
-
 
     public ArrayList<String> setLocation(String address){
         ArrayList<String> addresspart = new ArrayList<>();
@@ -435,128 +354,33 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
             case R.id.rl_toolbar2_menu:
                 onBackPressed();
                 break;
-            case R.id.rl_toolbar2_notification_view:
-                Intent intent;
-                intent = new Intent(OngoingMapActivity.this,NotificationActivity.class);
-                startActivity(intent);
-                break;
         }
     }
-
-    /*@Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (!permissionGranted) {
-            return;
-        }
-        if(fromBuildMethod){
-            //startLocationUpdates();
-            fromBuildMethod = false;
-            mapFragment.getMapAsync(OngoingMapActivity.this);
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.i("PICKUP ACTIVITY:", "Connection Suspended");
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i("PICKUP ACTIVITY:", "Connection failed. Error: " + connectionResult.getErrorCode());
-    }*/
-
-
-
-    public void setNotificationCount(int count,boolean isStarted){
-        notificationCount = SessionManagement.getNotificationCount(context);
-        if(Integer.parseInt(notificationCount)!=count) {
-            notificationCount = String.valueOf(count);
-            if (count <= 0) {
-                clearNotificationCount();
-            } else if (count < 100) {
-                notiCount.setText(String.valueOf(count));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-            SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY,notificationCount);
-            boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-            if(b2)
-                SharedPrefUtil.setPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY,"no");
-        }
-    }
-    public void clearNotificationCount(){
-        notiCount.setText("");
-        noticountlayout.setVisibility(View.GONE);
-    }
-
-    public void newNotification(){
-        Log.i("newNotification","Notification");
-        int count = Integer.parseInt(SharedPrefUtil.getStringPreferences(context,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        setNotificationCount(count+1,false);
-    }
-
-    /*protected synchronized void buildGoogleApiClient(){
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        fromBuildMethod = true;
-        mGoogleApiClient.connect();
-    }*/
 
     @Override
     protected void onResume() {
         super.onResume();
         // register new push message receiver
         // by doing this, the activity will be notified each time a new message arrives
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(Config.PUSH_NOTIFICATION));
-        // clear the notification area when the app is opened
-        int sharedCount = Integer.parseInt(SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_COUNT_KEY));
-        int viewCount = Integer.parseInt(notiCount.getText().toString());
-        boolean b1 = sharedCount!=viewCount;
-        boolean b2 = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_NOTICATION_TAG,Constants.SHARED_NOTIFICATION_UPDATE_KEY).equals("yes");
-        if(b2){
-            newNotification();
-        }else if (b1){
-            if (sharedCount < 100 && sharedCount>0) {
-                notiCount.setText(String.valueOf(sharedCount));
-                noticountlayout.setVisibility(View.VISIBLE);
-            } else {
-                notiCount.setText("99+");
-                noticountlayout.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        registerReceiver(networkStateReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         if (!permissionGranted) {
             return;
         }
-        /*if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }*/
     }
 
     @Override
     protected void onStop() {
-        /*if(mGoogleApiClient!=null) {
-            if (mGoogleApiClient.isConnected()) {
-                mGoogleApiClient.disconnect();
-            }
-        }*/
+        unregisterReceiver(networkStateReceiver);
         super.onStop();
     }
 
@@ -570,26 +394,96 @@ public class OngoingMapActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     protected void onDestroy() {
-        mSocket.off("locationUpdate:Booking",onLocationUpdate);
-        mSocket.off("aborted:Booking",onBookingAborted);
-        mSocket.off("end:Booking",onBookingEnd);
-        mSocket.disconnect();
+        closeSocket();
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        if(booking_end) {
-            Intent newIntent = new Intent(this, BookingStatus.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(newIntent);
-            finish();
-        }else {
-            super.onBackPressed();
+        super.onBackPressed();
+    }
+
+    private List<LatLng> decodePoly(String encoded) {
+        List<LatLng> poly = new ArrayList<>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng((((double) lat / 1E5)),
+                    (((double) lng / 1E5)));
+            poly.add(p);
+        }
+        return poly;
+    }
+
+    public void resetSocket(){
+        closeSocket();
+        initSocket(blmod.getId());
+    }
+
+    public void closeSocket(){
+        if(mSocket!=null){
+            Log.i("Socket:","Disconnecting");
+            mSocket.off("aborted:Booking", onBookingAborted);
+            mSocket.off("end:Booking",onBookingEnd);
+            mSocket.off("locationUpdate:Booking",onLocationUpdate);
+            mSocket.disconnect();
+            mSocket.close();
+            mSocket=null;
+        }
+    }
+
+    private void abortAlert(final String message, final FragmentActivity context) {
+        try {
+            new Thread()
+            {
+                public void run()
+                {
+                    OngoingMapActivity.this.runOnUiThread(new Runnable()
+                    {
+                        public void run()
+                        {
+                            //Do your UI operations like dialog opening or Toast here
+                            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+                            builder.setTitle("Alert!");
+                            builder.setMessage(message);
+                            builder.setCancelable(false);
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    /*Intent intent = new Intent(OngoingMapActivity.this, OngoingActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(intent);
+                                    finish();*/
+                                    onBackPressed();
+                                }
+                            });
+                            builder.show();
+                        }
+                    });
+                }
+            }.start();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }
-
-
-//line no. 441, 444, 538
