@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.watertankercontroller.R;
+import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchDataListener;
 import com.example.watertankercontroller.Utils.GETAPIRequest;
 import com.example.watertankercontroller.Utils.HeadersUtil;
@@ -50,21 +51,34 @@ public class SplashActivity extends AppCompatActivity {
         });
         NotificationManager nm = (NotificationManager)getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
         nm.cancelAll();
-        if (SessionManagement.checkSignIn(this)) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getNotificationCount();
+        if(SharedPrefUtil.hasKey(this,Constants.SHARED_PREF_LOGIN_TAG, Constants.SERVER_IP)) {
+            URLs.BASE_URL = SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_LOGIN_TAG, Constants.SERVER_IP)+"/api/controller/";
+            URLs.SOCKET_URL=SharedPrefUtil.getStringPreferences(this,Constants.SHARED_PREF_LOGIN_TAG, Constants.SERVER_IP)+"?token=";
+            if (SessionManagement.checkSignIn(this)) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        getNotificationCount();
                     /*Intent i = new Intent(SplashActivity.this, BookingStatus.class);
                     startActivity(i);
                     finish();*/
-                }
-            }, SPLASH_TIME_OUT);
-        } else {
+                    }
+                }, SPLASH_TIME_OUT);
+            } else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent i = new Intent(SplashActivity.this, LoginActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+                }, SPLASH_TIME_OUT);
+            }
+        }else{
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent i = new Intent(SplashActivity.this, LoginActivity.class);
+                    Intent i = new Intent(SplashActivity.this, SelectServer.class);
                     startActivity(i);
                     finish();
                 }

@@ -57,10 +57,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()){
             case R.id.cl_login_loginbtn:
                 signin.setClickable(false);
-                loginApiCall();
-                /*Intent i = new Intent(LoginActivity.this, BookingStatus.class);
-                startActivity(i);
-                finish();*/
+                if (validate()) {
+                    loginApiCall();
+                }
                 break;
             case R.id.rl_login_showpwwd:
                 rl_eye.setClickable(false);
@@ -76,6 +75,36 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 rl_eye.setClickable(true);
                 break;
         }
+    }
+
+    private boolean validate(){
+        if (username.getText().toString().equals("")) {
+            //progressBar.setVisibility(View.GONE);
+            RequestQueueService.showAlert("Enter Username",LoginActivity.this);
+            signin.setClickable(true);
+            return false;
+        }
+        if (pwd.getText().toString().equals("")) {
+            //progressBar.setVisibility(View.GONE);
+            RequestQueueService.showAlert("Enter Password",LoginActivity.this);
+            signin.setClickable(true);
+            return false;
+        }
+        if (pwd.getText().toString().length()<8){
+            //progressBar.setVisibility(View.GONE);
+            RequestQueueService.showAlert("Password should be of atleast 8 letters long ",LoginActivity.this);
+            signin.setClickable(true);
+            return false;
+        }
+        return true;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if(SharedPrefUtil.hasKey(LoginActivity.this,Constants.SHARED_PREF_LOGIN_TAG,Constants.SERVER_IP))
+            SharedPrefUtil.removePreferenceKey(LoginActivity.this,Constants.SHARED_PREF_LOGIN_TAG,Constants.SERVER_IP);
+        super.onBackPressed();
     }
 
     private void loginApiCall(){
@@ -96,6 +125,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             postapiRequest.request(this, loginApiListener,url,headparam,jsonBodyObj);
         }catch (JSONException e){
             e.printStackTrace();
+            signin.setClickable(true);
         }
 
     }

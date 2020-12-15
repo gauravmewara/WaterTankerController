@@ -39,11 +39,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 public class BookingDetails extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
-    TextView bookingid,distance,pickup,drop,drivername,contact_no,message,pagetitle,tvmapshow;
+    TextView bookingid,distance,pickup,drop,drivername,contact_no,message,pagetitle,tvmapshow,otp;
     ImageView calltous,ivmapshow;
     ScrollView scrollview;
     RelativeLayout menuback;
@@ -72,6 +73,7 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
         drop = (TextView)findViewById(R.id.tv_bookingdetail_drop);
         drivername = (TextView)findViewById(R.id.tv_bookingdetail_drivername);
         contact_no = (TextView)findViewById(R.id.tv_bookingdetail_contact);
+        otp = (TextView)findViewById(R.id.tv_bookingdetail_otp);
         message = (TextView)findViewById(R.id.tv_bookingdetail_message);
         calltous = (ImageView)findViewById(R.id.iv_bookingdetail_bookingid_call);
         calltous.setOnClickListener(this);
@@ -170,6 +172,8 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             bmod.setControllerid(jsonObject.getString("controller_id"));
                             bmod.setPhone(jsonObject.getString("phone"));
                             contact_no.setText("+"+bmod.getPhonecode()+"-"+bmod.getPhone());
+                            bmod.setOtp(jsonObject.getString("otp"));
+                            otp.setText(bmod.getOtp());
                             bmod.setBookedby(jsonObject.getString("booked_by"));
                             bmod.setDrivername("No Driver Name in Response");
                             drivername.setText(bmod.getDrivername());
@@ -189,24 +193,26 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             pickup.setText(bmod.getFromlocation());
                             if(jsonObject.has("snapped_path")){
                                 String snapstring = jsonObject.getString("snapped_path");
-                                JSONObject snap = new JSONObject(snapstring);
-                                JSONArray snaparray=null;
-                                if(snap.has("snappedPoints")) {
-                                    snaparray = snap.getJSONArray("snappedPoints");
-                                    if (finalpath == null)
-                                        finalpath = new ArrayList<>();
-                                    if (snaparray != null) {
-                                        for (int i = 0; i < snaparray.length(); i++) {
-                                            JSONObject point = snaparray.getJSONObject(i);
-                                            JSONObject location = point.getJSONObject("location");
-                                            double lat = Double.parseDouble(location.getString("latitude"));
-                                            double longi = Double.parseDouble(location.getString("longitude"));
-                                            LatLng temp = new LatLng(lat, longi);
-                                            finalpath.add(temp);
+                                if(!snapstring.equals("")) {
+                                    JSONObject snap = new JSONObject(snapstring);
+                                    JSONArray snaparray = null;
+                                    if (snap.has("snappedPoints")) {
+                                        snaparray = snap.getJSONArray("snappedPoints");
+                                        if (finalpath == null)
+                                            finalpath = new ArrayList<>();
+                                        if (snaparray != null) {
+                                            for (int i = 0; i < snaparray.length(); i++) {
+                                                JSONObject point = snaparray.getJSONObject(i);
+                                                JSONObject location = point.getJSONObject("location");
+                                                double lat = Double.parseDouble(location.getString("latitude"));
+                                                double longi = Double.parseDouble(location.getString("longitude"));
+                                                LatLng temp = new LatLng(lat, longi);
+                                                finalpath.add(temp);
+                                            }
                                         }
                                     }
+                                    mapFragment.getMapAsync(BookingDetails.this);
                                 }
-                                mapFragment.getMapAsync(BookingDetails.this);
                             }
                         }
                     }

@@ -1,9 +1,11 @@
 package com.example.watertankercontroller.Utils;
 
 public class URLs {
-    public static final String BASE_URL= "http://ec2-15-206-253-136.ap-south-1.compute.amazonaws.com:8081/api/controller/";
-    public static final String SOCKET_URL="http://ec2-15-206-253-136.ap-south-1.compute.amazonaws.com:8081?token=";
-
+    public static final String FETCH_SERVER_URL= "https://amitelectric.in/api/tankTracking/";
+    public static String BASE_URL= "";
+    public static String SOCKET_URL="";
+    //public static final String BASE_URL= "http://117.247.229.67/api/controller/";
+    //public static final String SOCKET_URL="http://117.247.229.67?token=";
     public static final String SIGN_IN_URL = "signin";
     public static final String SIGN_OUT_URL = "signout";
     public static final String CREATE_BOOKING = "booking";

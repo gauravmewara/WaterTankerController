@@ -90,6 +90,7 @@
                     android:imeOptions="actionNext"
                     android:inputType="text"
                     android:maxLines="1"
+                    android:maxLength="32"
                     android:layout_marginTop="10dp"/>
 
 
@@ -136,6 +137,7 @@
                     app:layout_constraintTop_toBottomOf="@id/rl_login_pwd_icon"
                     android:paddingLeft="33dp"
                     android:imeOptions="actionDone"
+                    android:maxLength="32"
                     android:maxLines="1"
                     android:layout_marginTop="10dp" />
                 <RelativeLayout

@@ -34,6 +34,7 @@ public class Constants {
     public static final String SHARED_NOTIFICATION_COUNT_KEY = "notification_count";
     public static final String SHARED_NOTIFICATION_UPDATE_KEY  = "notification_update";
     public static final String SHARED_NOTIFICATION_BACKGROUND_KEY  = "background_notification";
+    public static final String SERVER_IP="server_ip";
 
     public static final String MAP_API_KEY="AIzaSyCnENMGu0gdviSQakqPHV9uB2I-lUDOPOg";
 }

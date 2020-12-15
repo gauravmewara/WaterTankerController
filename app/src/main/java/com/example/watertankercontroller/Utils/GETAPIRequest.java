@@ -34,10 +34,14 @@ public class GETAPIRequest {
                         try {
                             Log.d("Response",response.toString());
                             if (listener != null) {
-                                if(response.getInt("error")!= 1) {
-                                    listener.onFetchComplete(response);
-                                }else {
+                                if(response.has("error")) {
+                                    if (response.getInt("error") != 1) {
+                                        listener.onFetchComplete(response);
+                                    } else {
                                         listener.onFetchFailure(response.getString("errorCode"));
+                                    }
+                                }else{
+                                    listener.onFetchComplete(response);
                                 }
                             }
                         }catch (JSONException e){

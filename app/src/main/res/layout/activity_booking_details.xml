@@ -237,8 +237,54 @@
             <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/tv_bookingdetail_message_title"
+                android:id="@+id/tv_bookingdetail_otp_title"
                 android:layout_below="@+id/bookingdetail_underline6"
+                android:layout_marginTop="10dp"
+                android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
+                android:layout_alignEnd="@+id/bookingdetail_underline1"
+                android:text="OTP"
+                android:textColor="@color/Green2"
+                android:textSize="13dp"/>
+
+            <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_bookingdetail_otp"
+                android:layout_below="@+id/tv_bookingdetail_otp_title"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/Black"
+                android:textSize="13dp"
+                android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
+                android:layout_alignEnd="@+id/bookingdetail_underline1"
+                android:text=""/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:id="@+id/bookingdetail_underline7"
+                android:layout_below="@id/tv_bookingdetail_otp"
+                android:background="@color/DarkGray"
+                android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
+                android:layout_alignEnd="@id/bookingdetail_underline1"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_bookingdetail_message_title"
+                android:layout_below="@+id/bookingdetail_underline7"
                 android:layout_marginTop="10dp"
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"

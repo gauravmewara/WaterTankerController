@@ -7,7 +7,7 @@ public class BookingModal implements Parcelable {
     String id;
     String bookingid,distance,fromlocation,tolocation,fromtime,totime;
     String fromlatitude,fromlongitude,tolatitude,tolongitude,bookingtype;
-    String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name,path;
+    String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name,path,otp;
 
 
     public BookingModal(){}
@@ -180,6 +180,14 @@ public class BookingModal implements Parcelable {
         this.id = id;
     }
 
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -208,6 +216,7 @@ public class BookingModal implements Parcelable {
         parcel.writeString(drivername);
         parcel.writeString(controller_name);
         parcel.writeString(path);
+        parcel.writeString(otp);
     }
 
     protected BookingModal(Parcel in){
@@ -232,6 +241,7 @@ public class BookingModal implements Parcelable {
         drivername = in.readString();
         controller_name = in.readString();
         path = in.readString();
+        otp = in.readString();
     }
 
     public static final Creator<BookingModal> CREATOR = new Creator<BookingModal>() {
