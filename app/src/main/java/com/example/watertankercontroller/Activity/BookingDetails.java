@@ -44,7 +44,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 public class BookingDetails extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback {
-    TextView bookingid,distance,pickup,drop,drivername,contact_no,message,pagetitle,tvmapshow,otp;
+    TextView bookingid,distance,pickup,drop,drivername,contact_no,message,pagetitle,tvmapshow,otp,workorders;
     ImageView calltous,ivmapshow;
     ScrollView scrollview;
     RelativeLayout menuback;
@@ -69,6 +69,7 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
         pagetitle = (TextView)findViewById(R.id.tv_toolbar2_heading);
         bookingid = (TextView)findViewById(R.id.tv_bookingdetail_bookingid);
         distance = (TextView)findViewById(R.id.tv_bookingdetail_distance);
+        workorders=(TextView)findViewById(R.id.tv_bookingdetail_workorder);
         pickup = (TextView)findViewById(R.id.tv_bookingdetail_pickup);
         drop = (TextView)findViewById(R.id.tv_bookingdetail_drop);
         drivername = (TextView)findViewById(R.id.tv_bookingdetail_drivername);
@@ -142,7 +143,7 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
             Log.i("url", String.valueOf(url));
             String token = SessionManagement.getUserToken(this);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(this.getApplicationContext(),getBookingListener,url,headparam);
+            getapiRequest.request(this,getBookingListener,url,headparam);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -168,6 +169,8 @@ public class BookingDetails extends AppCompatActivity implements View.OnClickLis
                             message.setText(bmod.getMessage());
                             bmod.setFromtime(jsonObject.getString("trip_start_at"));
                             bmod.setTotime(jsonObject.getString("trip_end_at"));
+                            bmod.setContractor_id(jsonObject.getString("contractor_id"));
+                            workorders.setText(bmod.getContractor_id());
                             bmod.setPickuppointid(jsonObject.getString("pickup_point_id"));
                             bmod.setControllerid(jsonObject.getString("controller_id"));
                             bmod.setPhone(jsonObject.getString("phone"));

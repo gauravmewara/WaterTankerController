@@ -303,7 +303,7 @@ public class BookingListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             Log.i("url", String.valueOf(url));
             String token = SessionManagement.getUserToken(context);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(context.getApplicationContext(),abortBookingListener,url,headparam,jsonBody);
+            getapiRequest.request(context,abortBookingListener,url,headparam,jsonBody);
         }catch (Exception e){
             e.printStackTrace();
             abort_delete.setClickable(true);

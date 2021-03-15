@@ -1,5 +1,6 @@
 package com.example.watertankercontroller.Activity;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -8,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
@@ -34,6 +36,7 @@ import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
 import com.example.watertankercontroller.fcm.Config;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -135,7 +138,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
                 Log.i("url", String.valueOf(url));
                 String token = SessionManagement.getUserToken(this);
                 HeadersUtil headparam = new HeadersUtil(token);
-                getapiRequest.request(this.getApplicationContext(),completebookinglistener,url,headparam);
+                getapiRequest.request(this,completebookinglistener,url,headparam);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -215,6 +218,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
         }
         @Override
         public void onFetchFailure(String msg) {
+
             RequestQueueService.showAlert(msg, CompletedActivity.this);
             setRecyclerView();
         }
@@ -246,7 +250,7 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
             //Log.i("Request", String.valueOf(getapiRequest));
             String token = SessionManagement.getUserToken(this);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(this,nextListener,url,headparam);
+            getapiRequest.request(this.getApplicationContext(),nextListener,url,headparam);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -313,6 +317,9 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
         @Override
         public void onFetchFailure(String msg) {
             //RequestQueueService.cancelProgressDialog();
+            /*if (msg.equals("Unauthorized user")){
+                showAlert();
+            }*/
 
             RequestQueueService.showAlert(msg,CompletedActivity.this);
         }
@@ -325,7 +332,30 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
 
     };
 
+   /* public void  showAlert(){
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+        builder1.setTitle("Unauthorization!")
+                .setMessage("We found that this account maybe unauthorized");
+        builder1.setPositiveButton(
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        FirebaseAuth.getInstance().signOut();
+                        SharedPrefUtil.deletePreference(CompletedActivity.this,Constants.SHARED_PREF_LOGIN_TAG);
+                        SharedPrefUtil.deletePreference(CompletedActivity.this,Constants.SHARED_PREF_NOTICATION_TAG);
 
+                        Intent i = new Intent(CompletedActivity.this, SelectServer.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(i);
+                        Toast.makeText(CompletedActivity.this, "Due to unauthorized activity ,You are now logout", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+
+
+    }*/
 
     @Override
     protected void onResume() {
@@ -336,5 +366,6 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
     }
+
 
 }

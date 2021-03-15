@@ -138,7 +138,7 @@ public class OngoingActivity extends AppCompatActivity implements View.OnClickLi
             Log.i("url", String.valueOf(url));
             String token = SessionManagement.getUserToken(this);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(this.getApplicationContext(),ongoingbookinglistener,url,headparam);
+            getapiRequest.request(this,ongoingbookinglistener,url,headparam);
         }catch (Exception e){
             e.printStackTrace();
         }

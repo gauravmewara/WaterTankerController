@@ -302,6 +302,43 @@
                 android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
                 android:layout_alignEnd="@+id/bookingdetail_underline1"
                 android:text=""/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:id="@+id/bookingdetail_underline8"
+                android:layout_below="@id/tv_bookingdetail_message"
+                android:background="@color/DarkGray"
+                android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
+                android:layout_alignEnd="@id/bookingdetail_underline1"/>
+
+            <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                android:id="@+id/tv_bookingdetail_workorder_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/bookingdetail_underline8"
+                android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
+                android:layout_alignEnd="@+id/bookingdetail_underline1"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginEnd="-2dp"
+                android:text="Work Order"
+                android:textColor="@color/Green2"
+                android:textSize="13dp" />
+
+            <com.example.watertankercontroller.CustomViews.RobotoRegularTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_bookingdetail_workorder"
+                android:layout_below="@+id/tv_bookingdetail_workorder_title"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/Black"
+                android:textSize="13dp"
+                android:layout_alignStart="@+id/tv_bookingdetail_bookingid"
+                android:layout_alignEnd="@+id/bookingdetail_underline1"
+                android:text=""/>
+
         </RelativeLayout>
     </ScrollView>
     <RelativeLayout

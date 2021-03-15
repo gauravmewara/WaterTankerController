@@ -13,6 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.watertankercontroller.Activity.BookingStatus;
+import com.example.watertankercontroller.Activity.LoginActivity;
+import com.example.watertankercontroller.Activity.SelectServer;
 import com.example.watertankercontroller.R;
 import com.example.watertankercontroller.Utils.Constants;
 import com.example.watertankercontroller.Utils.FetchDataListener;
@@ -22,6 +25,7 @@ import com.example.watertankercontroller.Utils.RequestQueueService;
 import com.example.watertankercontroller.Utils.SessionManagement;
 import com.example.watertankercontroller.Utils.SharedPrefUtil;
 import com.example.watertankercontroller.Utils.URLs;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +36,7 @@ public class SplashActivity extends AppCompatActivity {
     ImageView iv_refresh;
     TextView tv_NoInternet;
     int refreshlevel = 0;
+    boolean authorized = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,14 +116,29 @@ public class SplashActivity extends AppCompatActivity {
             Log.d("NotiCount:",response.toString());
             try {
                 if (response != null) {
-                    if (response.getInt("error") == 0) {
-                        JSONObject data = response.getJSONObject("data");
-                        String count = data.getString("count");
-                        SessionManagement.setNotificationCount(SplashActivity.this,count);
-                        Intent i = new Intent(SplashActivity.this, BookingStatus.class);
-                        startActivity(i);
-                        finish();
-                    }
+
+                        if (response.getInt("error") == 0) {
+
+                                JSONObject data = response.getJSONObject("data");
+                                String count = data.getString("count");
+                                SessionManagement.setNotificationCount(SplashActivity.this, count);
+                            Intent i = new Intent(SplashActivity.this, BookingStatus.class);
+                                startActivity(i);
+                                finish();
+//                            if (authorized) {
+//
+//                            }else{
+//                                FirebaseAuth.getInstance().signOut();
+//                                SharedPrefUtil.deletePreference(SplashActivity.this,Constants.SHARED_PREF_LOGIN_TAG);
+//                                SharedPrefUtil.deletePreference(SplashActivity.this,Constants.SHARED_PREF_NOTICATION_TAG);
+//
+//                                Intent i = new Intent(SplashActivity.this, SelectServer.class);
+//                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                                startActivity(i);
+//                                Toast.makeText(SplashActivity.this, "Due to unauthorized activity ,You are now logout", Toast.LENGTH_SHORT).show();
+//                                finish();
+//                            }
+                        }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

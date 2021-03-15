@@ -5,6 +5,9 @@ import android.os.Parcelable;
 
 public class BookingModal implements Parcelable {
     String id;
+
+
+    String contractor_id;
     String bookingid,distance,fromlocation,tolocation,fromtime,totime;
     String fromlatitude,fromlongitude,tolatitude,tolongitude,bookingtype;
     String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name,path,otp;
@@ -187,6 +190,14 @@ public class BookingModal implements Parcelable {
     public void setOtp(String otp) {
         this.otp = otp;
     }
+
+    public String getContractor_id() {
+        return contractor_id;
+    }
+    public void setContractor_id(String contractor_id) {
+        this.contractor_id = contractor_id;
+    }
+
 
     @Override
     public int describeContents() {

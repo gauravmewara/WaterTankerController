@@ -1,6 +1,14 @@
 package com.example.watertankercontroller.Utils;
+import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
@@ -13,6 +21,8 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.watertankercontroller.Activity.SelectServer;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,7 +66,11 @@ public class POSTAPIRequest {
                     listener.onFetchFailure("Network Connectivity Problem");
                 }else if(error instanceof TimeoutError){
                     listener.onFetchFailure("Request Timed Out");
-                } else if (error.networkResponse != null && error.networkResponse.data != null) {
+                }else if (error instanceof AuthFailureError) {
+                    showAlert(context);
+                }
+
+                else if (error.networkResponse != null && error.networkResponse.data != null) {
                     VolleyError volley_error = new VolleyError(new String(error.networkResponse.data));
                     String errorMessage = "";
                     try {
@@ -129,6 +143,8 @@ public class POSTAPIRequest {
                     listener.onFetchFailure("Network Connectivity Problem");
                 }else if(error instanceof TimeoutError){
                     listener.onFetchFailure("Request Timed Out");
+                }else if (error instanceof AuthFailureError) {
+                    showAlert(context);
                 } else if (error.networkResponse != null && error.networkResponse.data != null) {
                     VolleyError volley_error = new VolleyError(new String(error.networkResponse.data));
                     String errorMessage = "";
@@ -166,6 +182,40 @@ public class POSTAPIRequest {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         RequestQueueService.getInstance(context).addToRequestQueue(jsonObjectRequest.setShouldCache(false));
+    }
+
+
+    public void  showAlert(final Context context){
+
+            final DialogInterface.OnClickListener listner = new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    FirebaseAuth.getInstance().signOut();
+                    SharedPrefUtil.removePreferenceKey(context,Constants.SHARED_PREF_LOGIN_TAG,Constants.SERVER_IP);
+                    SharedPrefUtil.deletePreference(context, Constants.SHARED_PREF_LOGIN_TAG);
+                    SharedPrefUtil.deletePreference(context, Constants.SHARED_PREF_NOTICATION_TAG);
+
+                    Intent i = new Intent(context, SelectServer.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    context.startActivity(i);
+                    Toast.makeText(context, "Due to unauthorized activity ,You are now logout", Toast.LENGTH_SHORT).show();
+                }
+            };
+        final DialogInterface.OnDismissListener disListener = new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                FirebaseAuth.getInstance().signOut();
+                SharedPrefUtil.removePreferenceKey(context,Constants.SHARED_PREF_LOGIN_TAG,Constants.SERVER_IP);
+                SharedPrefUtil.deletePreference(context, Constants.SHARED_PREF_LOGIN_TAG);
+                SharedPrefUtil.deletePreference(context, Constants.SHARED_PREF_NOTICATION_TAG);
+
+                Intent i = new Intent(context, SelectServer.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                context.startActivity(i);
+                Toast.makeText(context, "Due to unauthorized activity ,You are now logout", Toast.LENGTH_SHORT).show();
+            }
+        };
+        RequestQueueService.showAlert("UnAuthorized Activity found", "Due to unauthorized activity ,You are now logout", context, listner, disListener);
+
     }
 
 }

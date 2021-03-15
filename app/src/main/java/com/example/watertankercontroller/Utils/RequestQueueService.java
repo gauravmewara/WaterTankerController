@@ -2,8 +2,10 @@ package com.example.watertankercontroller.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 
@@ -91,6 +93,20 @@ public class RequestQueueService {
             e.printStackTrace();
         }
     }
+    public static void showAlert(String title, String message, final Context context, final DialogInterface.OnClickListener listner, final DialogInterface.OnDismissListener disListner) {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(title);
+            builder.setMessage(message);
+            builder.setPositiveButton("OK", listner);
+//            builder.setOnDismissListener(disListner);
+            builder.setCancelable(false);
+            builder.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     //Start showing progress
     public static void showProgressDialog(final Activity activity) {

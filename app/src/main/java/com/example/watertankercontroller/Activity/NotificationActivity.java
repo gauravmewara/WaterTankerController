@@ -180,7 +180,7 @@ public class NotificationActivity extends AppCompatActivity implements View.OnCl
             Log.i("url", String.valueOf(url));
             String token = SessionManagement.getUserToken(this);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(this.getApplicationContext(),getnotificationlistener,url,headparam);
+            getapiRequest.request(this,getnotificationlistener,url,headparam);
         }catch (Exception e){
             e.printStackTrace();
         }

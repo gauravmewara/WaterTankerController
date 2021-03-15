@@ -133,7 +133,7 @@ public class AbortedActivity extends AppCompatActivity implements View.OnClickLi
             Log.i("url", String.valueOf(url));
             String token = SessionManagement.getUserToken(this);
             HeadersUtil headparam = new HeadersUtil(token);
-            getapiRequest.request(this.getApplicationContext(),abortedbookinglistener,url,headparam);
+            getapiRequest.request(this,abortedbookinglistener,url,headparam);
         }catch (Exception e){
             e.printStackTrace();
         }
