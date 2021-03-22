@@ -184,8 +184,10 @@ public class CompletedActivity extends AppCompatActivity implements View.OnClick
                                     bmod.setBookedby(jsonObject.getString("booked_by"));
                                     bmod.setBookingtype("completed");
 
-                                    JSONObject distance = jsonObject.getJSONObject("distance");
-                                    bmod.setDistance(distance.getString("text"));
+                                    if (jsonObject.has("distance_traveled")){
+                                        JSONObject distance = jsonObject.getJSONObject("distance_traveled");
+                                        bmod.setDistance(distance.getString("text"));
+                                    }
 
                                     JSONObject droppoint = jsonObject.getJSONObject("drop_point");
                                     bmod.setTolocation(droppoint.getString("address").trim());

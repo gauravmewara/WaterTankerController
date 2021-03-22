@@ -11,6 +11,10 @@ public class BookingModal implements Parcelable {
     String bookingid,distance,fromlocation,tolocation,fromtime,totime;
     String fromlatitude,fromlongitude,tolatitude,tolongitude,bookingtype;
     String phonecode,phone,pickuppointid,controllerid,bookedby,message,drivername,controller_name,path,otp;
+    String distance_travelled;
+
+
+
 
 
     public BookingModal(){}
@@ -196,6 +200,13 @@ public class BookingModal implements Parcelable {
     }
     public void setContractor_id(String contractor_id) {
         this.contractor_id = contractor_id;
+    }
+
+    public String getDistance_travelled() {
+        return distance_travelled;
+    }
+    public void setDistance_travelled(String distance_travelled) {
+        this.distance_travelled = distance_travelled;
     }
 
 
